@@ -6,6 +6,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 skills:
   - repo-intelligence
   - toolchain
+  - security-and-hardening
   - supabase-auth-data
   - supabase-postgres-best-practices
   - cloudflare

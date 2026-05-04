@@ -7,6 +7,9 @@ skills:
   - toolchain
   - repo-intelligence
   - project-setup
+  - security-and-hardening
+  - performance-optimization
+  - deprecation-and-migration
   - cloudflare
 color: orange
 ---

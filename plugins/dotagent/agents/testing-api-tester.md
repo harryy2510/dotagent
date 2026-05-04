@@ -7,6 +7,9 @@ skills:
   - testing
   - toolchain
   - repo-intelligence
+  - api-and-interface-design
+  - security-and-hardening
+  - performance-optimization
   - supabase-auth-data
   - cloudflare
 color: purple

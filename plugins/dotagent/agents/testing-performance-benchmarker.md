@@ -6,7 +6,9 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 skills:
   - testing
   - repo-intelligence
+  - performance-optimization
   - react-best-practices
+  - supabase-postgres-best-practices
   - cloudflare
   - vite
 color: orange

@@ -6,6 +6,8 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 skills:
   - toolchain
   - repo-intelligence
+  - source-driven-development
+  - api-and-interface-design
   - tanstack-start-cloudflare
   - react-best-practices
   - react-query-mutative
@@ -16,6 +18,7 @@ skills:
   - cloudflare
   - ui
   - testing
+  - code-simplification
 color: green
 ---
 

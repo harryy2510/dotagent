@@ -128,6 +128,10 @@ When building new interfaces, commit to a bold aesthetic direction:
 
 Match implementation complexity to vision.
 
+## Accessibility
+
+Use `references/accessibility-checklist.md` for forms, dialogs, navigation, menus, custom controls, keyboard interactions, or release review.
+
 ---
 
 # Web Interface Guidelines

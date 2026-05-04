@@ -7,9 +7,14 @@ skills:
   - agent-routing
   - repo-intelligence
   - toolchain
+  - api-and-interface-design
+  - deprecation-and-migration
+  - documentation-and-adrs
   - tanstack-start-cloudflare
   - supabase-auth-data
   - supabase-postgres-best-practices
+  - security-and-hardening
+  - performance-optimization
   - cloudflare
   - ui
 color: indigo

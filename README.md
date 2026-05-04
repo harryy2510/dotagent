@@ -4,7 +4,7 @@
     <strong>Your agent setup: skills, agents, commands, tooling, and shared rules in one plugin.</strong>
   </p>
   <p align="center">
-    <code>20 skills</code> · <code>20 agents</code> · <code>5 commands</code> · <code>zero bloat</code>
+    <code>27 skills</code> · <code>20 agents</code> · <code>5 commands</code> · <code>zero bloat</code>
   </p>
 </p>
 
@@ -56,6 +56,8 @@ Loaded on-demand. Only the relevant skill enters context: the rest cost 0 tokens
 | 🤖 | `agent-routing` | Available role, skill, and native subagent routing |
 | 🔧 | `project-setup` | DX tooling, dotenvx encrypted env, CI/CD |
 | ✅ | `conventions` | One-time convention setup: enforces style via tooling forever |
+| 📚 | `source-driven-development` | Official-docs-first framework and library implementation |
+| 🧱 | `api-and-interface-design` | API contracts, module boundaries, errors, and compatibility |
 | 🎨 | `ui` | Tailwind v4, shadcn/base-ui, CVA variants, dark mode, animations |
 | 🧩 | `shadcn` | Adding, searching, fixing, composing shadcn/ui components |
 | 📝 | `forms-rhf-zod` | react-hook-form + zod v4, create/edit modes, useWatch patterns |
@@ -68,6 +70,11 @@ Loaded on-demand. Only the relevant skill enters context: the rest cost 0 tokens
 | 🚀 | `react-best-practices` | 57 performance rules + composition patterns |
 | 🗄️ | `supabase-postgres-best-practices` | Indexing, query plans, RLS perf, connection pooling |
 | 🧹 | `deslop` | Slop scanner for debug leftovers, placeholders, and risky code |
+| ✂️ | `code-simplification` | Behavior-preserving simplification and cleanup |
+| 🔒 | `security-and-hardening` | Auth, input, secrets, permissions, and boundary review |
+| 📈 | `performance-optimization` | Measure-first speed, latency, query, bundle, and runtime work |
+| 🧭 | `deprecation-and-migration` | Legacy cleanup, migrations, compatibility, and removal plans |
+| 📄 | `documentation-and-adrs` | Durable technical docs, decisions, runbooks, and API notes |
 | 🧪 | `testing` | Vitest + Testing Library + Playwright, file conventions, what to test |
 | 🐞 | `debugging` | Root-cause workflow for bugs, regressions, flakes, incidents, and fix verification |
 
@@ -197,7 +204,7 @@ dotagent/
 │   ├── testing-*.md
 │   ├── product-manager.md
 │   └── design-ux-architect.md
-├── skills/                  ← 20 on-demand skills
+├── skills/                  ← 27 on-demand skills
 │   ├── conventions/
 │   ├── scaffold/
 │   ├── ui/
@@ -357,3 +364,5 @@ The plugin follows its own conventions:
 ```
 
 ---
+
+Selected process-oriented skills are adapted from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) under MIT.

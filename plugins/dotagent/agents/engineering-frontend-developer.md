@@ -7,6 +7,7 @@ skills:
   - ui
   - shadcn
   - react-best-practices
+  - performance-optimization
   - forms-rhf-zod
   - react-query-mutative
   - zustand-x-ui-state

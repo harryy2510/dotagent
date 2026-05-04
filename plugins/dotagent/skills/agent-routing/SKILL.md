@@ -41,25 +41,25 @@ Use this flow when routing is requested, when work is broad enough for subagents
 | Work type | Agent | Useful skills |
 |---|---|---|
 | Multi-agent coordination, decomposition, specialist selection | `agents-orchestrator` | `agent-routing`, `repo-intelligence`, `toolchain` |
-| Complex full-stack implementation | `engineering-senior-developer` | `toolchain`, `repo-intelligence`, `tanstack-start-cloudflare`, `react-best-practices`, `react-query-mutative`, `forms-rhf-zod`, `zustand-x-ui-state`, `supabase-auth-data`, `supabase-postgres-best-practices`, `cloudflare`, `ui`, `testing` |
-| Architecture, domain modeling, ADRs, refactor planning | `engineering-software-architect` | `agent-routing`, `repo-intelligence`, `toolchain`, stack-specific skills |
-| Frontend UI, React, accessibility, responsive work | `engineering-frontend-developer` | `ui`, `shadcn`, `react-best-practices`, `forms-rhf-zod`, `react-query-mutative`, `zustand-x-ui-state`, `testing` |
+| Complex full-stack implementation | `engineering-senior-developer` | `toolchain`, `repo-intelligence`, `source-driven-development`, `api-and-interface-design`, stack-specific skills, `testing`, `code-simplification` |
+| Architecture, domain modeling, ADRs, refactor planning | `engineering-software-architect` | `agent-routing`, `repo-intelligence`, `toolchain`, `api-and-interface-design`, `deprecation-and-migration`, `documentation-and-adrs`, stack-specific skills |
+| Frontend UI, React, accessibility, responsive work | `engineering-frontend-developer` | `ui`, `shadcn`, `react-best-practices`, `performance-optimization`, `forms-rhf-zod`, `react-query-mutative`, `zustand-x-ui-state`, `testing` |
 | Design systems, layouts, component hierarchy, UX handoff | `design-ux-architect` | `ui`, `shadcn`, `react-best-practices`, `repo-intelligence` |
-| Backend, APIs, server functions, auth/data boundaries | `engineering-backend-architect` | `toolchain`, `repo-intelligence`, `tanstack-start-cloudflare`, `supabase-auth-data`, `supabase-postgres-best-practices`, `cloudflare` |
+| Backend, APIs, server functions, auth/data boundaries | `engineering-backend-architect` | `toolchain`, `repo-intelligence`, `api-and-interface-design`, `tanstack-start-cloudflare`, `supabase-auth-data`, `supabase-postgres-best-practices`, `security-and-hardening`, `deprecation-and-migration`, `cloudflare` |
 | Postgres, migrations, RLS, indexes, query plans | `engineering-database-optimizer` | `repo-intelligence`, `toolchain`, `supabase-auth-data`, `supabase-postgres-best-practices` |
-| CI/CD, GitHub Actions, deployments, Wrangler | `engineering-devops-automator` | `toolchain`, `repo-intelligence`, `project-setup`, `cloudflare` |
-| Security, authz, secrets, threat modeling | `engineering-security-engineer` | `repo-intelligence`, `toolchain`, `supabase-auth-data`, `supabase-postgres-best-practices`, `cloudflare` |
+| CI/CD, GitHub Actions, deployments, Wrangler | `engineering-devops-automator` | `toolchain`, `repo-intelligence`, `project-setup`, `security-and-hardening`, `performance-optimization`, `deprecation-and-migration`, `cloudflare` |
+| Security, authz, secrets, threat modeling | `engineering-security-engineer` | `repo-intelligence`, `toolchain`, `security-and-hardening`, `supabase-auth-data`, `supabase-postgres-best-practices`, `cloudflare` |
 | Bugs, crashes, regressions, flaky tests, unclear root cause | `engineering-debugger` | `debugging`, `repo-intelligence`, `toolchain`, `testing` |
-| Code review | `engineering-code-reviewer` | `repo-intelligence`, `toolchain`, `deslop`, `testing` |
+| Code review | `engineering-code-reviewer` | `repo-intelligence`, `toolchain`, `deslop`, `testing`, `api-and-interface-design`, `security-and-hardening`, `performance-optimization`, `code-simplification` |
 | Git workflow, commits, branches, worktrees | `engineering-git-workflow-master` | `toolchain`, `repo-intelligence` |
 | Prototype or MVP | `engineering-rapid-prototyper` | `toolchain`, `scaffold`, `ui`, `react-best-practices` |
-| Developer docs, README, commands, migration guides | `engineering-technical-writer` | `repo-intelligence`, `toolchain` |
+| Developer docs, README, commands, migration guides | `engineering-technical-writer` | `repo-intelligence`, `toolchain`, `documentation-and-adrs`, `api-and-interface-design` |
 | Product specs, PRDs, priorities, acceptance criteria | `product-manager` | `repo-intelligence`, `agent-routing` |
 | MCP servers and agent connectors | `specialized-mcp-builder` | `toolchain`, `repo-intelligence` |
-| API tests and contracts | `testing-api-tester` | `testing`, `toolchain`, `repo-intelligence`, `supabase-auth-data`, `cloudflare` |
+| API tests and contracts | `testing-api-tester` | `testing`, `toolchain`, `repo-intelligence`, `api-and-interface-design`, `security-and-hardening`, `performance-optimization`, `supabase-auth-data`, `cloudflare` |
 | New Playwright E2E tests | `testing-e2e-writer` | `testing`, `repo-intelligence`, `ui` |
 | Running/debugging Playwright E2E | `testing-e2e-runner` | `debugging`, `testing`, `toolchain`, `repo-intelligence` |
-| Performance/load/Core Web Vitals | `testing-performance-benchmarker` | `testing`, `repo-intelligence`, `react-best-practices`, `cloudflare`, `vite` |
+| Performance/load/Core Web Vitals | `testing-performance-benchmarker` | `testing`, `repo-intelligence`, `performance-optimization`, `react-best-practices`, `supabase-postgres-best-practices`, `cloudflare`, `vite` |
 
 ## Multi-Role Tasks
 

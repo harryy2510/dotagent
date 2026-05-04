@@ -6,9 +6,12 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 skills:
   - toolchain
   - repo-intelligence
+  - api-and-interface-design
   - tanstack-start-cloudflare
   - supabase-auth-data
   - supabase-postgres-best-practices
+  - security-and-hardening
+  - deprecation-and-migration
   - cloudflare
 color: blue
 ---

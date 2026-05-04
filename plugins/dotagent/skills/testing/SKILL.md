@@ -57,6 +57,10 @@ If test-first is impractical, state why and add the closest useful coverage befo
 - Styling/layout (visual regression is better)
 - React Query hooks that just wrap a server function with no transform
 
+## References
+
+Use `references/testing-patterns.md` when the test shape, mocking boundary, or regression strategy needs more detail than this quick path.
+
 ## Vitest Patterns
 
 ### Basic Unit Test

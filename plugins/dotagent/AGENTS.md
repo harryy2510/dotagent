@@ -114,12 +114,19 @@ Default to speed mode unless the user explicitly asks for deep review, exhaustiv
 - Codebase exploration or reviews: `repo-intelligence`, `deslop`
 - Agent delegation or role selection: `agent-routing`
 - Debugging, regressions, flaky tests, incidents: `debugging`, `testing`
+- Framework/library correctness: `source-driven-development`
+- API contracts and public boundaries: `api-and-interface-design`
 - React UI: `ui`, `shadcn`, `react-best-practices`
 - Forms: `forms-rhf-zod`
 - Data fetching: `react-query-mutative`
 - Client state: `zustand-x-ui-state`
 - Routes and server functions: `tanstack-start-cloudflare`
 - Supabase auth, data, migrations, RLS: `supabase-auth-data`, `supabase-postgres-best-practices`
+- Legacy cleanup, replacements, and migrations: `deprecation-and-migration`
+- Security-sensitive work: `security-and-hardening`
+- Performance diagnosis and optimization: `performance-optimization`
+- Behavior-preserving cleanup: `code-simplification`
+- Durable docs and ADRs: `documentation-and-adrs`
 - Cloudflare Workers and Wrangler: `cloudflare`
 - Vite: `vite`
 - Testing: `testing`

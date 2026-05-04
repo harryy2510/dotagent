@@ -6,6 +6,8 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 skills:
   - repo-intelligence
   - toolchain
+  - documentation-and-adrs
+  - api-and-interface-design
 color: teal
 ---
 

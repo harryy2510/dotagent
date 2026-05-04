@@ -8,6 +8,10 @@ skills:
   - toolchain
   - deslop
   - testing
+  - api-and-interface-design
+  - security-and-hardening
+  - performance-optimization
+  - code-simplification
 color: purple
 ---
 
