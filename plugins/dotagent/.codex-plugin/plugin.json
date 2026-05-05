@@ -1,7 +1,7 @@
 {
   "name": "dotagent",
-  "version": "1.7.0",
-  "description": "Agent conventions, skills, role-profile guidance, and tooling for full-stack TypeScript projects.",
+  "version": "1.8.0",
+  "description": "Agent conventions, skills, role-profile guidance, status reporting, and tooling for full-stack TypeScript projects.",
   "author": {
     "name": "Hariom Sharma",
     "email": "harryy2510@gmail.com",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "DotAgent",
     "shortDescription": "Agent conventions, skills, and tooling for TypeScript projects.",
-    "longDescription": "DotAgent provides focused skills, shared rules, and role-profile guidance for full-stack TypeScript, React, Supabase, Cloudflare, UI, testing, API design, security, performance, migration, and quality workflows. Markdown role profiles live in plugins/dotagent/agents/ and are guidance unless the current Codex host exposes them as native agents.",
+    "longDescription": "DotAgent provides focused skills, shared rules, and role-profile guidance for full-stack TypeScript, React, Supabase, Cloudflare, UI, testing, API design, security, performance, migration, status reporting, and quality workflows. Markdown role profiles live in plugins/dotagent/agents/ and are guidance unless the current Codex host exposes them as native agents.",
     "developerName": "Hariom Sharma",
     "category": "Development",
     "capabilities": [

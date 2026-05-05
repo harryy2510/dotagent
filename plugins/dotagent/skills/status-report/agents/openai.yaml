@@ -1,0 +1,4 @@
+interface:
+  display_name: "Status Report"
+  short_description: "Generate stakeholder status reports from git, reports, docs, and code"
+  default_prompt: "Use $status-report to generate a client-ready progress report from the last public report forward."

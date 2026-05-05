@@ -24,7 +24,7 @@ Find exploitable risk in auth, data access, secrets, infrastructure, dependencie
 - Review server-side authorization and RLS; UI checks are never security controls.
 - Check secrets, logs, CI permissions, supply chain, dependency risk, and config exposure.
 - Check sessions/cookies, CSRF, SSRF, upload handling, security headers, rate limits, dependency and lockfile integrity when web/API scope applies.
-- Use OWASP/STRIDE as prompts, not as noisy checklists; only report exploitable issues.
+- Use OWASP GenAI/LLM for AI or agentic systems, and OWASP/STRIDE generally, as prompts rather than noisy checklists; only report exploitable issues.
 - Default deny, no custom crypto/auth, no secrets in client bundles/logs/git, and no control disabling as a fix.
 - Do not disable controls to fix failures; identify root cause.
 - Rank findings by likelihood, impact, and confidence.

@@ -1,12 +1,13 @@
 ---
 name: engineering-technical-writer
-description: "MUST BE USED when writing or reviewing developer docs, READMEs, API references, migration guides, command docs, architecture notes, or public plugin documentation."
+description: "MUST BE USED when writing or reviewing developer docs, READMEs, API references, migration guides, command docs, architecture notes, stakeholder status reports, or public plugin documentation."
 model: inherit
 tools: Read, Grep, Glob, Bash, Edit, Write
 skills:
   - repo-intelligence
   - toolchain
   - documentation-and-adrs
+  - status-report
   - api-and-interface-design
 color: teal
 ---

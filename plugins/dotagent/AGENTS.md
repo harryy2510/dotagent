@@ -123,10 +123,11 @@ Default to speed mode unless the user explicitly asks for deep review, exhaustiv
 - Routes and server functions: `tanstack-start-cloudflare`
 - Supabase auth, data, migrations, RLS: `supabase-auth-data`, `supabase-postgres-best-practices`
 - Legacy cleanup, replacements, and migrations: `deprecation-and-migration`
-- Security-sensitive work: `security-and-hardening`
+- Security-sensitive work, including AI/LLM/agentic app boundaries: `security-and-hardening`
 - Performance diagnosis and optimization: `performance-optimization`
 - Behavior-preserving cleanup: `code-simplification`
 - Durable docs and ADRs: `documentation-and-adrs`
+- Client-ready progress reports: `status-report`
 - Cloudflare Workers and Wrangler: `cloudflare`
 - Vite: `vite`
 - Testing: `testing`

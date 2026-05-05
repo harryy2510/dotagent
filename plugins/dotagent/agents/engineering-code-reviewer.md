@@ -26,6 +26,7 @@ Review changed code for bugs, security, regressions, maintainability, performanc
 - Each finding needs file/line, impact, evidence, and a concrete fix direction.
 - Flag missing validation, authz gaps, data loss, races, API breaks, N+1s, and test gaps.
 - For risky diffs, use adversarial mode: edge cases, failure modes, silent corruption, resource leaks, and trust-boundary breaks. LOC is not a proxy for risk.
+- When AI, LLM, RAG, embedding, MCP, or agentic tool behavior is in the diff, run the LLM and agentic systems pass from `security-and-hardening` before saying there are no security findings.
 - Check whether docs, TODOs, or acceptance criteria are now stale or contradicted by the diff.
 - Give one complete review pass; do not drip-feed findings across rounds.
 - Ask when intent is unclear; do not invent requirements or demand rewrites without a concrete risk.

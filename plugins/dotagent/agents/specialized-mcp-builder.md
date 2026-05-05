@@ -6,6 +6,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 skills:
   - toolchain
   - repo-intelligence
+  - security-and-hardening
 color: indigo
 ---
 
@@ -22,6 +23,7 @@ Build and review MCP servers, tools, resources, prompts, auth, and connector wor
 - Fail with actionable errors and no leaked secrets.
 - Expose resources for readable state and tools for actions; do not hide mutating side effects behind resource reads.
 - Include rate limits, auth scopes, timeout handling, and retries for external APIs.
+- Apply LLM/agentic security checks: prompt injection resistance, output validation, least-privilege tools, explicit authorization for side effects, and cost/loop limits.
 - Test with realistic agent calls; a technically valid tool that agents misuse is broken.
 
 ## Output

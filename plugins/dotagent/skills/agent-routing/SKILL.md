@@ -53,9 +53,9 @@ Use this flow when routing is requested, when work is broad enough for subagents
 | Code review | `engineering-code-reviewer` | `repo-intelligence`, `toolchain`, `deslop`, `testing`, `api-and-interface-design`, `security-and-hardening`, `performance-optimization`, `code-simplification` |
 | Git workflow, commits, branches, worktrees | `engineering-git-workflow-master` | `toolchain`, `repo-intelligence` |
 | Prototype or MVP | `engineering-rapid-prototyper` | `toolchain`, `scaffold`, `ui`, `react-best-practices` |
-| Developer docs, README, commands, migration guides | `engineering-technical-writer` | `repo-intelligence`, `toolchain`, `documentation-and-adrs`, `api-and-interface-design` |
+| Developer docs, README, commands, migration guides, stakeholder reports | `engineering-technical-writer` | `repo-intelligence`, `toolchain`, `documentation-and-adrs`, `status-report`, `api-and-interface-design` |
 | Product specs, PRDs, priorities, acceptance criteria | `product-manager` | `repo-intelligence`, `agent-routing` |
-| MCP servers and agent connectors | `specialized-mcp-builder` | `toolchain`, `repo-intelligence` |
+| MCP servers and agent connectors | `specialized-mcp-builder` | `toolchain`, `repo-intelligence`, `security-and-hardening` |
 | API tests and contracts | `testing-api-tester` | `testing`, `toolchain`, `repo-intelligence`, `api-and-interface-design`, `security-and-hardening`, `performance-optimization`, `supabase-auth-data`, `cloudflare` |
 | New Playwright E2E tests | `testing-e2e-writer` | `testing`, `repo-intelligence`, `ui` |
 | Running/debugging Playwright E2E | `testing-e2e-runner` | `debugging`, `testing`, `toolchain`, `repo-intelligence` |

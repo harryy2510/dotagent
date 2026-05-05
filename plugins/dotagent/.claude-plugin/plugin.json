@@ -1,5 +1,5 @@
 {
   "name": "dotagent",
-  "version": "1.7.0",
-  "description": "Agent conventions, skills, role profiles, and tooling for all projects. Includes shared global rules, Bun TypeScript tooling, oxlint/oxfmt enforcement, repo intelligence, API design, security, performance, migration, and agent routing when the host exposes the DotAgent skill/profile files."
+  "version": "1.8.0",
+  "description": "Agent conventions, skills, role profiles, and tooling for all projects. Includes shared global rules, Bun TypeScript tooling, oxlint/oxfmt enforcement, repo intelligence, API design, security, performance, migration, status reporting, and agent routing when the host exposes the DotAgent skill/profile files."
 }

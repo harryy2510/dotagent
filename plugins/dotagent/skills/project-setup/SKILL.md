@@ -108,17 +108,37 @@ dist/
 
 1. `bun add @dotenvx/dotenvx`
 2. Ask the user to encrypt env files themselves: `dotenvx encrypt -f .env.development --stdout > .env.development.encrypted` (same for production)
-3. Add env-management scripts only when the user requested dotenvx setup; do not run scripts that write `.env*`
-4. Do not add auto-encryption hooks unless the user explicitly asks; hooks that write `.env*` files are user-owned behavior
-5. If local Supabase overrides are needed, create a helper that prints env content to stdout; the user redirects it to `.env.development.local`
-6. Create `scripts/sync-env.ts` to push secrets to Cloudflare + Supabase
+3. Add a non-failing `postinstall` decrypt script so `bun install` refreshes local env files after install
+4. When Husky is installed, add a `.husky/post-checkout` hook that runs `bun install` after branch switches
+5. Add env-management scripts only when the user requested dotenvx setup; do not run scripts that write `.env*`
+6. Do not add auto-encryption hooks unless the user explicitly asks; hooks that write `.env*` files are user-owned behavior
+7. If local Supabase overrides are needed, create a helper that prints env content to stdout; the user redirects it to `.env.development.local`
+8. Create `scripts/sync-env.ts` to push secrets to Cloudflare + Supabase
 
 ### Key Script Patterns
 
 - **postinstall** uses `;` not `&&` (each file decrypts independently) and ends with `; true` (never fails install)
+- **post-checkout** runs `bun install` through Husky when Husky is installed, so branch switches refresh dependencies and trigger the `postinstall` decrypt path
 - **env:encrypt** uses `&&` (fail loudly on error)
 - **sync-env** uses `wrangler versions secret bulk` (atomic), NOT individual `secret put` (races)
 - **Supabase sync** auto-scans `supabase/functions/**/*.ts` for `Deno.env.get('KEY')` calls
+
+### Husky Post-checkout Hook
+
+When the repo uses Husky and dotenvx `postinstall` has been added, add `.husky/post-checkout` so checking out a branch that changes encrypted env files or dependencies triggers the decrypt path through `bun install`. This hook is user-runtime behavior; do not run it manually as an agent.
+
+```sh
+#!/bin/sh
+set -u
+
+if [ "${CI:-}" = "true" ]; then
+	exit 0
+fi
+
+if command -v bun >/dev/null 2>&1 && [ -f package.json ]; then
+	bun install || echo "[WARN] bun install failed; run bun install manually" >&2
+fi
+```
 
 ### GitHub Secrets (3 total)
 

@@ -1,6 +1,6 @@
 ---
 name: security-and-hardening
-description: "Use when handling auth, user input, secrets, permissions, uploads, webhooks, external integrations, database policies, or security-sensitive reviews."
+description: "Use when handling auth, user input, secrets, permissions, uploads, webhooks, external integrations, LLM/agentic systems, database policies, or security-sensitive reviews."
 ---
 
 # Security And Hardening
@@ -11,6 +11,7 @@ Protect boundaries, secrets, and user data without turning every task into a ful
 
 - Auth, authorization, sessions, cookies, API keys, webhooks, billing, file upload, email, or third-party integrations are involved.
 - User-controlled input reaches a database, shell, URL, HTML, storage bucket, queue, or external API.
+- Prompts, model outputs, tools, MCP servers, RAG, embeddings, AI gateways, or agentic automation are involved.
 - RLS, permissions, CORS, CSP, rate limits, redirects, or tenant boundaries change.
 - Reviewing a feature before release or a bug with data exposure risk.
 
@@ -22,7 +23,8 @@ Protect boundaries, secrets, and user data without turning every task into a ful
 4. Validate and normalize input at the server boundary. Reuse repo schemas and generated database types.
 5. Check storage and query scope for tenant/user isolation.
 6. Review secrets handling without reading or editing `.env*` files.
-7. Run focused tests or checks for the changed boundary.
+7. For LLM/agentic systems, apply the OWASP GenAI/LLM pass: prompt injection, sensitive disclosure, supply chain, data/model poisoning, output handling, excessive agency, prompt leakage, vector weakness, misinformation, and unbounded consumption.
+8. Run focused tests or checks for the changed boundary.
 
 ## References
 

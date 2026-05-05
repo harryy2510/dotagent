@@ -4,7 +4,7 @@
     <strong>Your agent setup: skills, agents, commands, tooling, and shared rules in one plugin.</strong>
   </p>
   <p align="center">
-    <code>27 skills</code> · <code>20 agents</code> · <code>5 commands</code> · <code>zero bloat</code>
+    <code>28 skills</code> · <code>20 agents</code> · <code>6 commands</code> · <code>zero bloat</code>
   </p>
 </p>
 
@@ -46,7 +46,7 @@
 
 ## 🧠 Skills
 
-Loaded on-demand. Only the relevant skill enters context: the rest cost 0 tokens.
+Loaded on-demand. This list mirrors `plugins/dotagent/skills/*/SKILL.md`; only the relevant skill enters context, and the rest cost 0 tokens.
 
 | | Skill | What it teaches |
 |---|---|---|
@@ -75,6 +75,7 @@ Loaded on-demand. Only the relevant skill enters context: the rest cost 0 tokens
 | 📈 | `performance-optimization` | Measure-first speed, latency, query, bundle, and runtime work |
 | 🧭 | `deprecation-and-migration` | Legacy cleanup, migrations, compatibility, and removal plans |
 | 📄 | `documentation-and-adrs` | Durable technical docs, decisions, runbooks, and API notes |
+| 📊 | `status-report` | Client-ready progress reports from git, prior reports, docs, and code |
 | 🧪 | `testing` | Vitest + Testing Library + Playwright, file conventions, what to test |
 | 🐞 | `debugging` | Root-cause workflow for bugs, regressions, flakes, incidents, and fix verification |
 
@@ -110,15 +111,16 @@ Loaded on-demand. Only the relevant skill enters context: the rest cost 0 tokens
 
 ## ⚡ Commands
 
-Type these directly in Claude Code:
+Type these directly in Claude Code. This list mirrors `plugins/dotagent/commands/*.md`.
 
 | Command | What happens |
 |---|---|
 | `/deslop` | 🧹 Scans codebase for slop |
-| `/skill-lint` | ✅ Validates skills + agents → checks frontmatter, size, refs, triggers |
 | `/dotagent:setup` | 🔧 One-time: installs managed global rules for Claude and Codex |
-| `/dotagent:update` | 🔄 Updates plugin + refreshes Claude and Codex conventions |
+| `/skill-lint` | ✅ Validates skills + agents → checks frontmatter, size, refs, triggers |
+| `/status-report` | 📊 Generates a client-ready progress report from the last report forward |
 | `/dotagent:uninstall` | 🗑️ Removes DotAgent conventions from Claude and Codex global instruction files |
+| `/dotagent:update` | 🔄 Updates plugin + refreshes Claude and Codex conventions |
 
 ```
   bunx @harryy/agent-toolkit repo intel   ← builds local repo context
@@ -204,20 +206,42 @@ dotagent/
 │   ├── testing-*.md
 │   ├── product-manager.md
 │   └── design-ux-architect.md
-├── skills/                  ← 27 on-demand skills
+├── skills/                  ← 28 on-demand skills
+│   ├── agent-routing/
+│   ├── api-and-interface-design/
+│   ├── cloudflare/
+│   ├── code-simplification/
 │   ├── conventions/
+│   ├── debugging/
+│   ├── deprecation-and-migration/
+│   ├── deslop/
+│   ├── documentation-and-adrs/
+│   ├── forms-rhf-zod/
+│   ├── performance-optimization/
+│   ├── project-setup/
+│   ├── react-best-practices/
+│   ├── react-query-mutative/
+│   ├── repo-intelligence/
 │   ├── scaffold/
+│   ├── security-and-hardening/
+│   ├── shadcn/
+│   ├── source-driven-development/
+│   ├── status-report/
+│   ├── supabase-auth-data/
+│   ├── supabase-postgres-best-practices/
+│   ├── tanstack-start-cloudflare/
+│   ├── testing/
+│   ├── toolchain/
 │   ├── ui/
-│   ├── ...
-│   └── deslop/
-│       ├── SKILL.md
-│       └── references/
+│   ├── vite/
+│   └── zustand-x-ui-state/
 ├── commands/                ← Slash commands
 │   ├── deslop.md
-│   ├── skill-lint.md
 │   ├── setup.md
-│   ├── update.md
-│   └── uninstall.md
+│   ├── skill-lint.md
+│   ├── status-report.md
+│   ├── uninstall.md
+│   └── update.md
 └── scripts/                 ← Pure bash tooling (0 tokens)
     ├── deslop.sh
     ├── setup.sh
@@ -331,7 +355,7 @@ bunx @harryy/agent-toolkit repo check
    ---
    ```
 2. Heavy content → `skills/<name>/references/`
-3. Add to skill table in `AGENTS.md` and compatibility docs when needed
+3. Add it to the README skill inventory, routing/docs when needed, and `agents/openai.yaml` if Codex UI metadata is useful
 4. Run `/skill-lint skills`
 
 ### Adding an agent
@@ -365,4 +389,13 @@ The plugin follows its own conventions:
 
 ---
 
-Selected process-oriented skills are adapted from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) under MIT.
+## Sources And Credits
+
+DotAgent is repo-native, but it deliberately borrows good ideas from proven agent and platform sources:
+
+- [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) - selected process-oriented skills adapted under MIT.
+- [Superpowers](https://github.com/obra/superpowers) - workflow discipline reference; DotAgent keeps the useful parts but defaults to speed mode and does not vendor Superpowers planning docs.
+- [AgentSys](https://github.com/agent-sh/agentsys) - source for the `deslop` pattern set and earlier repo-intelligence experiments; current repo intelligence is handled by Agent Toolkit.
+- [OWASP GenAI Security Project](https://genai.owasp.org/llm-top-10/) and [Cloudflare's OWASP LLM risk primer](https://www.cloudflare.com/en-gb/learning/ai/owasp-top-10-risks-for-llms/) - source prompts for the LLM and agentic security checklist.
+- [Vercel Web Interface Guidelines](https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md) - UI review guidance fetched fresh when the `ui` skill reviews interfaces.
+- Official docs are the source of truth for stack-specific skills: [React](https://react.dev), [TanStack Start](https://tanstack.com/start), [TanStack Query](https://tanstack.com/query), [Supabase](https://supabase.com/docs), [Cloudflare Workers](https://developers.cloudflare.com/workers/), [shadcn/ui](https://ui.shadcn.com), [React Hook Form](https://react-hook-form.com), [Zod](https://zod.dev), [Bun](https://bun.sh), [Oxc](https://oxc.rs), [Vite](https://vite.dev), [Playwright](https://playwright.dev), [GitHub Actions](https://docs.github.com/en/actions), and [PostgreSQL](https://www.postgresql.org/docs/current/).
