@@ -24,7 +24,7 @@ Build CI/CD, deployment, and infrastructure automation that is repeatable, least
 - Keep workflows thin; put reusable deployment logic in shared workflows when appropriate.
 - Use Bun, oxlint, oxfmt, Agent Toolkit checks, and repo scripts.
 - Use Node.js 24 via `actions/setup-node@v6` in GitHub Actions whenever a Node runtime is needed.
-- Never write `.env*`; document variables or use platform secrets.
+- Never read or print actual env values; that rule has no exception. Never write `.env*` unless the user explicitly asks to add or append exact vars; even then, use only user-provided values or clearly fake placeholders.
 - Use least-privilege permissions, scoped environments, OIDC when supported, and masked secrets.
 - Use version-controlled infrastructure/config; avoid undocumented console-only changes.
 - Prefer PR previews before production and never cancel deploys mid-flight.

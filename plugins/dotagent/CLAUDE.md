@@ -73,9 +73,12 @@ Default to speed mode unless the user explicitly asks for deep review, exhaustiv
 
 ### Environment Files
 
-- Never edit, create, overwrite, or delete any file whose name starts with `.env`.
+- Never read, dump, echo, print, log, or otherwise expose actual environment variable values, including values from the process environment, shell variables, secret stores, or `.env*` files. This rule has no exception.
+- It is okay to inspect source code that names env vars; do not retrieve their live values.
+- Never edit, create, overwrite, or delete any file whose name starts with `.env` unless the user explicitly asks you to add or append specific env vars.
 - This includes `.env`, `.env.local`, `.env.development`, `.env.production`, `.env.keys`, `.env.vault`, `.env.example`, encrypted env files, and every other variant.
-- If the user needs env changes, tell them exactly what to change themselves.
+- When explicitly asked to add or append env vars, use only values provided by the user or clearly fake placeholders, and still do not read existing values or print the resulting file.
+- If a requested env change requires knowing existing values, tell the user exactly what to change themselves.
 
 ### Toolchain
 

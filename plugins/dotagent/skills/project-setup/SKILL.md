@@ -7,7 +7,7 @@ description: "Use when setting up DX tooling (linting, formatting, git hooks, ty
 
 Covers three domains: DX tooling (lint/format/hooks), encrypted environment management (dotenvx), and GitHub Actions CI/CD.
 
-Env files are user-owned. Agents may add tooling, scripts, docs, and CI workflow code for env management, but must not create, edit, encrypt, decrypt, stage, commit, or run commands that write any `.env*` file. Give the user exact commands to run when env file contents need to change.
+Env files and actual env values are user-owned. Agents may add tooling, scripts, docs, and CI workflow code for env management, but must not read, print, stage, commit, or run commands that read any `.env*` file or actual env value. That no-read/no-print rule has no exception. Do not create, edit, encrypt, decrypt, or otherwise write `.env*` files unless the user explicitly asks to add or append env values; then use only exact values they provide or clearly fake placeholders, and do not inspect existing values or print resulting files.
 
 ---
 
@@ -86,7 +86,7 @@ Hooks should call `bunx @harryy/agent-toolkit repo check` and enforce Convention
 
 ### generate-vite-env.ts
 
-May read user-owned env files to generate non-env artifacts such as `src/vite-env.d.ts`. It must not modify `.env*`.
+Do not read user-owned env files to generate artifacts such as `src/vite-env.d.ts`. Infer env names from source/config when possible, or ask the user for non-secret names/placeholders.
 
 ### .gitignore
 
@@ -112,7 +112,7 @@ dist/
 4. When Husky is installed, add a `.husky/post-checkout` hook that runs `bun install` after branch switches
 5. Add env-management scripts only when the user requested dotenvx setup; do not run scripts that write `.env*`
 6. Do not add auto-encryption hooks unless the user explicitly asks; hooks that write `.env*` files are user-owned behavior
-7. If local Supabase overrides are needed, create a helper that prints env content to stdout; the user redirects it to `.env.development.local`
+7. If local Supabase overrides are needed, create a helper that prints only non-secret placeholder content or documented variable names; the user supplies values and redirects it to `.env.development.local`
 8. Create `scripts/sync-env.ts` to push secrets to Cloudflare + Supabase
 
 ### Key Script Patterns

@@ -2,7 +2,7 @@
 
 Full reference for dotenvx encryption, env sync, CI integration, and local Supabase overrides.
 
-Env files are user-owned. Agents may add scripts and workflow code from this playbook, but must not run commands that create, edit, encrypt, decrypt, stage, or commit `.env*` files. Scripts that write `.env*` are user-run behavior; do not execute them as an agent.
+Env files and actual env values are user-owned. Agents may add scripts and workflow code from this playbook, but must not run commands that read, print, stage, or commit `.env*` files. That no-read/no-print rule has no exception. Do not create, edit, encrypt, decrypt, or otherwise write `.env*` files unless the user explicitly asks to add or append env values; then use only exact values they provide or clearly fake placeholders. Scripts that read or write `.env*` are user-run behavior; do not execute them as an agent.
 
 ## Install
 
@@ -36,7 +36,7 @@ Only add scripts that write `.env*` after the user asks for dotenvx setup, and d
 {
   "postinstall": "dotenvx decrypt -f .env.development.encrypted --stdout > .env.development 2>/dev/null; dotenvx decrypt -f .env.production.encrypted --stdout > .env.production 2>/dev/null; true",
   "env:encrypt": "dotenvx encrypt -f .env.development --stdout > .env.development.encrypted && dotenvx encrypt -f .env.production --stdout > .env.production.encrypted",
-  "env:local:print": "bun scripts/generate-env-local.ts",
+  "env:local:template": "bun scripts/generate-env-local-template.ts",
   "dev:server": "bunx supabase start",
   "sync-env": "bun scripts/sync-env.ts",
   "types:cf": "wrangler types --env-file .env.development && oxfmt -w worker-configuration.d.ts"
@@ -80,30 +80,15 @@ fi
 
 ## Local Supabase Overrides Script
 
-Create `scripts/generate-env-local.ts`. It prints the env content; the user can run `bun scripts/generate-env-local.ts > .env.development.local`.
+Create `scripts/generate-env-local-template.ts`. It prints only placeholder content; the user supplies values and can run `bun scripts/generate-env-local-template.ts > .env.development.local`.
 
 ```ts
-import { $ } from 'bun'
+const content = `# Fill values manually. Agents must not read local Supabase env output.
 
-const result = await $`bunx supabase status -o env`.quiet().nothrow()
-if (result.exitCode !== 0) {
-  console.error('Local Supabase is not running. Start it with: bun dev:server')
-  process.exit(1)
-}
-
-const env = Object.fromEntries(
-  result.text().trim().split('\n').map((line) => {
-    const [key, ...rest] = line.split('=')
-    return [key, rest.join('=').replace(/^"|"$/g, '')]
-  }),
-)
-
-const content = `# Auto-generated from local Supabase. Regenerate with: bun env:local
-
-VITE_SUPABASE_URL=${env.API_URL}
-VITE_SUPABASE_PUBLISHABLE_KEY=${env.PUBLISHABLE_KEY}
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_PUBLISHABLE_KEY=<local-publishable-key>
 VITE_SITE_URL=http://localhost:5173
-SUPABASE_DB_URL=${env.DB_URL}
+SUPABASE_DB_URL=<local-db-url>
 `
 
 process.stdout.write(content)
@@ -176,6 +161,6 @@ After CI deploy works:
 | `.env.production` | Decrypted prod (postinstall) | No |
 | `.env.development.local` | Local Supabase overrides (env:local) | No |
 | `scripts/sync-env.ts` | Push secrets to CF + Supabase | Yes |
-| `scripts/generate-env-local.ts` | Print local Supabase env for user redirection | Yes |
+| `scripts/generate-env-local-template.ts` | Print placeholder local Supabase env template for user redirection | Yes |
 
 Even when encrypted env files are intended to be committed, agents should not create or update them without an explicit user request.

@@ -34,7 +34,7 @@ Protect boundaries, secrets, and user data without turning every task into a ful
 
 ## Rules
 
-- Never create, edit, delete, print, or stage `.env*` files.
+- Never read, print, or stage `.env*` files or actual env var values; that rule has no exception. Only add or append exact env vars when explicitly asked, using user-provided values or clearly fake placeholders, without reading existing values.
 - Never expose internal errors, tokens, secrets, stack traces, or provider payloads to clients.
 - Never trust client-side role, tenant, or ownership fields.
 - Never disable RLS, auth checks, validation, CSRF/CORS protections, or rate limits to make a feature work.

@@ -47,7 +47,7 @@ description: "Use when working with Supabase clients, authentication, database t
 
 ## Environment Variables
 
-Env files are user-owned. Never edit, create, encrypt, decrypt, stage, or commit files whose names start with `.env`; tell the user exactly which variables to set.
+Env files and actual env values are user-owned. Never read, print, stage, or commit files whose names start with `.env`; that rule has no exception. Only add or append exact env vars when explicitly asked, using user-provided values or clearly fake placeholders, without reading existing values.
 
 | Variable | Context | Purpose |
 |----------|---------|---------|
@@ -61,7 +61,7 @@ Env files are user-owned. Never edit, create, encrypt, decrypt, stage, or commit
 
 - `VITE_` prefix = exposed to client via `import.meta.env`.
 - Server secrets = Cloudflare env bindings (not `process.env`).
-- Per-environment values usually live in user-managed `.env*` files or deployment secrets. Do not modify them directly.
+- Per-environment values usually live in user-managed `.env*` files or deployment secrets. Do not inspect them directly. Only add or append exact env vars when explicitly asked, using user-provided values or clearly fake placeholders, without reading existing values.
 - For CI/deploy, prefer existing package scripts or documented secret stores over direct Supabase CLI commands.
 
 ## Edge Function Patterns

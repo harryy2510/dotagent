@@ -42,7 +42,8 @@ This repository contains the DotAgent plugin and the shared agent rules it insta
 - GitHub Actions workflows must use Node.js 24 with `actions/setup-node@v6` when a Node runtime is needed.
 - Any commits must use Conventional Commit format.
 - Keep scripts POSIX-friendly bash where possible.
-- Do not edit files whose names start with `.env`.
+- Do not read, dump, echo, print, log, or expose actual environment variable values from the process environment, secret stores, or `.env*` files. This rule has no exception.
+- Do not edit files whose names start with `.env` unless the user explicitly asks you to add or append specific env vars; when asked, use only user-provided values or clearly fake placeholders, and still do not read existing values or print the file.
 - Do not run destructive cleanup commands or `git push` unless the user explicitly asks in the current message.
 - Run `plugins/dotagent/scripts/skill-lint.sh` when agent, skill, command, or plugin instruction files change.
 - Validate JSON manifests after editing them.
