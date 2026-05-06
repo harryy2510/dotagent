@@ -103,6 +103,7 @@ Default to speed mode unless the user explicitly asks for deep review, exhaustiv
 - Never run direct Supabase CLI commands in repos that require package scripts for Supabase.
 - Use existing package scripts, such as `bun db-push-and-types`, when the repository provides them.
 - Never hand-write types for Supabase tables, views, functions, or RPCs when generated database types are available.
+- Prefer `@supabase/server` for stateless Supabase Edge Functions, Workers, Hono, and Bun handlers instead of hand-rolled JWT, CORS, and client setup; it does not replace `@supabase/ssr` for cookie-based SSR sessions.
 - SQL functions must set `search_path = ''` or explicit schemas and schema-qualify references such as `public.users` and `auth.uid()`.
 
 ### Generated Files

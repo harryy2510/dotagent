@@ -1,6 +1,6 @@
 ---
 name: supabase-auth-data
-description: "Use when working with Supabase clients, authentication, database types, migrations, RLS, or environment variables in any framework (TanStack Start, Next.js, etc.)."
+description: "Use when working with Supabase clients, authentication, @supabase/server, Edge Functions, database types, migrations, RLS, or environment variables in any framework (TanStack Start, Next.js, etc.)."
 ---
 
 ## Supabase Clients
@@ -65,6 +65,34 @@ Env files and actual env values are user-owned. Never read, print, stage, or com
 - For CI/deploy, prefer existing package scripts or documented secret stores over direct Supabase CLI commands.
 
 ## Edge Function Patterns
+
+### `@supabase/server`
+
+Use `@supabase/server` for new stateless Supabase Edge Functions, Cloudflare Workers, Hono APIs, Bun handlers, and migrations away from duplicated `_shared/supabase.ts`, JWT verification, CORS, and client setup. It is public beta; check the upstream package docs before large migrations.
+
+- It does not replace `@supabase/ssr`; keep `@supabase/ssr` for cookie-based SSR sessions in frameworks.
+- Prefer `withSupabase({ auth: ... }, handler)` for standard endpoints and `createSupabaseContext(req, options)` when custom error handling is needed.
+- Auth modes: `user`, `none`, `secret`, `publishable`, or arrays such as `['user', 'secret']`.
+- Use `ctx.supabase` for RLS-scoped user operations. Use `ctx.supabaseAdmin` only for privileged server-side work with explicit authorization and audit behavior.
+- For Hono, use the package adapter from `@supabase/server/adapters/hono`.
+- In Supabase Platform and Local Development Edge Functions, the package receives `SUPABASE_PUBLISHABLE_KEYS`, `SUPABASE_SECRET_KEYS`, and `SUPABASE_JWKS` automatically. In self-hosted or non-CLI environments, use the plural key names. Do not read or print actual values.
+- In Bun projects, install with `bun add @supabase/server`; do not introduce npm/npx commands unless the repo explicitly uses them.
+- When migrating existing functions, remove old shared client/auth/CORS utilities after callers move so there is one auth path.
+
+```typescript
+import { withSupabase } from '@supabase/server'
+
+export default {
+  fetch: withSupabase({ auth: 'user' }, async (_req, { supabase }) => {
+    const { data, error } = await supabase.from('profiles').select('id').limit(10)
+    if (error) return Response.json({ error: error.message }, { status: 500 })
+
+    return Response.json({ data })
+  }),
+}
+```
+
+Source: <https://supabase.com/blog/introducing-supabase-server.md>
 
 ### Shared modules
 
