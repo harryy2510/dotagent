@@ -80,6 +80,11 @@ Default to speed mode unless the user explicitly asks for deep review, exhaustiv
 - When explicitly asked to add or append env vars, use only values provided by the user or clearly fake placeholders, and still do not read existing values or print the resulting file.
 - If a requested env change requires knowing existing values, tell the user exactly what to change themselves.
 
+### Runtime Boundaries
+
+- Do not paper over client/server boundary violations with lazy or dynamic imports. If server-only code is reachable from a client bundle, fix the import graph instead: move server logic to a `.server.ts` module, mark server-only modules with framework guards such as `server-only` or `@tanstack/react-start/server-only`, and expose browser access through the framework's approved RPC/server-function bridge.
+- Treat import-protection and server-only build failures as architecture failures, not bundler problems. Do not bypass, weaken, or defer those checks unless the user explicitly asks for a temporary mitigation.
+
 ### Toolchain
 
 - Use Bun for JavaScript and TypeScript package management and execution.
