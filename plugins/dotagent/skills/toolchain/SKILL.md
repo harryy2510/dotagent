@@ -61,6 +61,8 @@ For Rust plus Bun repos:
 - Do not skip hooks.
 - Use Husky repo-local hooks that call `bunx @harryy/agent-toolkit`.
 - For isolated worktrees, create from the latest target branch, run setup/check baseline before editing, and clean up only after the user accepts merge/PR/discard.
+- After creating an isolated worktree, copy every source-checkout env file whose basename starts with `.env` into the same relative path in the worktree before install, setup, or checks.
+- Env file copying is mechanical only: preserve bytes and names without reading, printing, diffing, decrypting, staging, or committing contents; ask before overwriting an env file that already exists in the target worktree.
 
 ## Verification
 

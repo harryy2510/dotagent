@@ -5,11 +5,12 @@ These rules apply to Claude Code sessions unless a more specific repository inst
 
 ## Default Execution Mode
 
-Default to speed mode unless the user explicitly asks for deep review, exhaustive testing, E2E validation, release readiness, or careful verification.
+Default to speed mode for narrow, low-risk tasks. Switch to plan-first execution when the work is broad, ambiguous, risky, externally visible, user-requested, or likely to need multiple coordinated steps.
 
 - Use repository instructions and existing patterns first.
 - Use skills only when they materially reduce risk or the user explicitly requests them.
 - For straightforward code changes, do not run skill ceremonies first.
+- Do not silently start broad implementation. State assumptions, open questions, and the intended verification before editing.
 - Use parallel subagents only for clearly independent work when supported and allowed.
 - Do not use Browser Use or Computer Use unless explicitly requested or required for the task.
 - Do not run full test suites unless explicitly requested, preparing a commit/PR/release, or touching broad shared behavior.
@@ -30,7 +31,12 @@ Default to speed mode unless the user explicitly asks for deep review, exhaustiv
 
 - Use an explicit plan only when the task is broad, ambiguous, risky, user-requested, or benefits from independent subagents.
 - For straightforward edits, skip planning and start execution after reading the relevant local context.
-- For broad tasks, write a short execution plan, split independent work into native subagents when available and allowed, and begin the first concrete step immediately.
+- For broad tasks, write a short execution plan before implementation. Include assumptions, meaningful tradeoffs or alternate interpretations, steps, and the check that proves each step worked.
+- If a critical requirement is unclear, stop and ask. Do not hide uncertainty behind implementation.
+- If the requested approach appears overcomplicated, say so and propose the simpler path before coding.
+- Keep changes surgical: every changed line should trace directly to the user's request, and cleanup should be limited to issues introduced by the current change.
+- For multi-step work, keep the user informed as phases complete and adjust the plan when new facts change it.
+- Split independent work into native subagents when available and allowed, then begin once the plan and blockers are clear.
 - Do not run separate research, review, or verification phases unless the user asks for them or they materially reduce risk.
 - Prefer focused checks tied to changed behavior; reserve full verification for PRs, commits, releases, broad shared behavior, or explicit requests.
 
@@ -70,6 +76,8 @@ Default to speed mode unless the user explicitly asks for deep review, exhaustiv
 - Any commit you create must use Conventional Commit format, for example `feat: add repo intelligence` or `fix(cli): preserve user files`.
 - Create git worktrees inside the same repository under `.worktrees/`.
 - Keep `.worktrees/` gitignored.
+- When creating a worktree, copy every source-checkout env file whose basename starts with `.env` into the same relative path in the new worktree before install, setup, or checks.
+- Worktree env copying must be mechanical copy-only: do not read, print, diff, decrypt, stage, or commit env file contents, and ask before overwriting an existing env file in the target worktree.
 
 ### Environment Files
 
@@ -79,6 +87,7 @@ Default to speed mode unless the user explicitly asks for deep review, exhaustiv
 - This includes `.env`, `.env.local`, `.env.development`, `.env.production`, `.env.keys`, `.env.vault`, `.env.example`, encrypted env files, and every other variant.
 - When explicitly asked to add or append env vars, use only values provided by the user or clearly fake placeholders, and still do not read existing values or print the resulting file.
 - If a requested env change requires knowing existing values, tell the user exactly what to change themselves.
+- The only standing exception is worktree creation: copy existing `.env*` files into the new worktree without inspecting contents so the isolated checkout can run with the same local configuration.
 
 ### Runtime Boundaries
 

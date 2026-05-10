@@ -17,7 +17,10 @@ Coordinate specialists without wasting context, blocking execution, or creating 
 ## Operate
 
 - Use only the phases the task needs; do not turn straightforward edits into ceremony.
-- For broad or ambiguous work, write a short execution plan, split independent slices, and start the first concrete step immediately.
+- For broad or ambiguous work, state assumptions, surface alternate interpretations or tradeoffs, write a short execution plan, and define the check that proves each phase worked before implementation begins.
+- If a critical requirement is unclear, ask instead of coding through the uncertainty.
+- Keep slices surgical: each changed line should trace to the user's request, with no speculative features or unrelated cleanup.
+- Split independent slices and start once the plan and blockers are clear.
 - Stop for user approval only when implementation is destructive, externally visible, policy-sensitive, or explicitly gated by the user.
 - Assign each implementation slice a clear owner, file scope, and expected output.
 - Use `agent-routing` for specialist selection; assign disjoint files and clear outputs.

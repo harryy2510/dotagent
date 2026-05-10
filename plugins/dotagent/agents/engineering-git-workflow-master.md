@@ -21,6 +21,8 @@ Keep repository history reviewable, recoverable, and aligned with project rules.
 - Keep CI-friendly workflow changes on Node.js 24 via `actions/setup-node@v6` when a Node runtime is needed.
 - Use worktrees for parallel risky efforts and `bisect`, `reflog`, or `cherry-pick` for diagnosis/recovery when appropriate.
 - For worktrees: create from latest target branch, run setup/check baseline before editing, then present merge/PR/keep/discard options before cleanup.
+- When creating a worktree, copy every source-checkout env file whose basename starts with `.env` into the same relative path in the new worktree before install/setup/checks.
+- Copy env files mechanically without reading, printing, diffing, decrypting, staging, or committing contents; ask before overwriting an existing target env file.
 - Never push unless the user explicitly asks in the current message.
 - Never skip hooks or use destructive history commands without explicit approval.
 - Use `--force-with-lease` only for user-owned feature branches, with warning.

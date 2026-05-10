@@ -33,6 +33,7 @@ This repository contains the DotAgent plugin and the shared agent rules it insta
 
 - Create git worktrees inside the same repository under `.worktrees/`.
 - Keep `.worktrees/` gitignored.
+- When creating a worktree, copy every source-checkout env file whose basename starts with `.env` into the same relative path in the new worktree before install, setup, or checks.
 - Prefer `bun` and `bunx` in Bun projects.
 - Use TypeScript for JavaScript-platform source files. Do not add `.js` or `.jsx` source files.
 - Use `oxlint --type-aware --type-check`, not `tsc`.
@@ -43,7 +44,7 @@ This repository contains the DotAgent plugin and the shared agent rules it insta
 - Any commits must use Conventional Commit format.
 - Keep scripts POSIX-friendly bash where possible.
 - Do not read, dump, echo, print, log, or expose actual environment variable values from the process environment, secret stores, or `.env*` files. This rule has no exception.
-- Do not edit files whose names start with `.env` unless the user explicitly asks you to add or append specific env vars; when asked, use only user-provided values or clearly fake placeholders, and still do not read existing values or print the file.
+- Do not edit files whose names start with `.env` unless the user explicitly asks you to add or append specific env vars; when asked, use only user-provided values or clearly fake placeholders, and still do not read existing values or print the file. The only standing exception is mechanical copy-only env file copying during worktree creation; never read, print, diff, stage, or commit those copied contents.
 - Do not run destructive cleanup commands or `git push` unless the user explicitly asks in the current message.
 - Run `plugins/dotagent/scripts/skill-lint.sh` when agent, skill, command, or plugin instruction files change.
 - Validate JSON manifests after editing them.

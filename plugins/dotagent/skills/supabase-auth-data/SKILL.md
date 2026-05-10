@@ -47,7 +47,7 @@ description: "Use when working with Supabase clients, authentication, @supabase/
 
 ## Environment Variables
 
-Env files and actual env values are user-owned. Never read, print, stage, or commit files whose names start with `.env`; that rule has no exception. Only add or append exact env vars when explicitly asked, using user-provided values or clearly fake placeholders, without reading existing values.
+Env files and actual env values are user-owned. Never read, print, stage, or commit files whose names start with `.env`; that rule has no exception. Only add or append exact env vars when explicitly asked, using user-provided values or clearly fake placeholders, without reading existing values. Mechanical worktree env-file copies follow the global Git worktree rule and still must not inspect values.
 
 | Variable | Context | Purpose |
 |----------|---------|---------|

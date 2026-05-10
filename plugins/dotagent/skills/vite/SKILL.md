@@ -13,7 +13,7 @@ Vite is a next-generation frontend build tool with fast dev server (native ESM +
 
 - Use TypeScript: prefer `vite.config.ts`
 - Always use ESM, avoid CommonJS
-- Never read or print `.env*` files or actual env values; that rule has no exception. Only edit or create `.env*` files when the user explicitly asks to add or append exact env vars, using user-provided values or clearly fake placeholders without inspecting existing values.
+- Never read or print `.env*` files or actual env values; that rule has no exception. Only edit or create `.env*` files when the user explicitly asks to add or append exact env vars, using user-provided values or clearly fake placeholders without inspecting existing values. Mechanical worktree env-file copies follow the global Git worktree rule and still must not inspect values.
 - Treat `VITE_` variables as public client bundle data; never put secrets behind that prefix.
 - Convert `import.meta.env` values from strings before numeric/boolean use.
 - Bun loads env files into `process.env` before scripts run; account for that when debugging Vite env precedence.

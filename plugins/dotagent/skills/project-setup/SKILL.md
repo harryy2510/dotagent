@@ -7,7 +7,7 @@ description: "Use when setting up DX tooling (linting, formatting, git hooks, ty
 
 Covers three domains: DX tooling (lint/format/hooks), encrypted environment management (dotenvx), and GitHub Actions CI/CD.
 
-Env files and actual env values are user-owned. Agents may add tooling, scripts, docs, and CI workflow code for env management, but must not read, print, stage, commit, or run commands that read any `.env*` file or actual env value. That no-read/no-print rule has no exception. Do not create, edit, encrypt, decrypt, or otherwise write `.env*` files unless the user explicitly asks to add or append env values; then use only exact values they provide or clearly fake placeholders, and do not inspect existing values or print resulting files.
+Env files and actual env values are user-owned. Agents may add tooling, scripts, docs, and CI workflow code for env management, but must not read, print, stage, commit, or run commands that read any `.env*` file or actual env value. That no-read/no-print rule has no exception. Do not create, edit, encrypt, decrypt, or otherwise write `.env*` files unless the user explicitly asks to add or append env values; then use only exact values they provide or clearly fake placeholders, and do not inspect existing values or print resulting files. The worktree exception is copy-only: when creating an isolated worktree, copy existing `.env*` files into the same relative paths without inspecting, staging, or committing contents.
 
 ---
 
