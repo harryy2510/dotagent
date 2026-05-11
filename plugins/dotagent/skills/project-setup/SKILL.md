@@ -109,7 +109,7 @@ dist/
 1. `bun add @dotenvx/dotenvx`
 2. Ask the user to encrypt env files themselves: `dotenvx encrypt -f .env.development --stdout > .env.development.encrypted` (same for production)
 3. Add a non-failing `postinstall` decrypt script so `bun install` refreshes local env files after install
-4. When Husky is installed, add a `.husky/post-checkout` hook that runs `bun install` after branch switches
+4. Add a `post-checkout` hook in the repo's active committed hook directory (`.vite-hooks` for Vite+ projects, otherwise `.husky`) that runs `bun install` after branch switches
 5. Add env-management scripts only when the user requested dotenvx setup; do not run scripts that write `.env*`
 6. Do not add auto-encryption hooks unless the user explicitly asks; hooks that write `.env*` files are user-owned behavior
 7. If local Supabase overrides are needed, create a helper that prints only non-secret placeholder content or documented variable names; the user supplies values and redirects it to `.env.development.local`
@@ -118,14 +118,14 @@ dist/
 ### Key Script Patterns
 
 - **postinstall** uses `;` not `&&` (each file decrypts independently) and ends with `; true` (never fails install)
-- **post-checkout** runs `bun install` through Husky when Husky is installed, so branch switches refresh dependencies and trigger the `postinstall` decrypt path
+- **post-checkout** runs `bun install` through the active repo hook manager, so branch switches refresh dependencies and trigger the `postinstall` decrypt path
 - **env:encrypt** uses `&&` (fail loudly on error)
 - **sync-env** uses `wrangler versions secret bulk` (atomic), NOT individual `secret put` (races)
 - **Supabase sync** auto-scans `supabase/functions/**/*.ts` for `Deno.env.get('KEY')` calls
 
-### Husky Post-checkout Hook
+### Post-checkout Hook
 
-When the repo uses Husky and dotenvx `postinstall` has been added, add `.husky/post-checkout` so checking out a branch that changes encrypted env files or dependencies triggers the decrypt path through `bun install`. This hook is user-runtime behavior; do not run it manually as an agent.
+When dotenvx `postinstall` has been added, add `post-checkout` to the repo's active committed hook directory (`.vite-hooks/post-checkout` for Vite+ projects, otherwise `.husky/post-checkout`) so checking out a branch that changes encrypted env files or dependencies triggers the decrypt path through `bun install`. This hook is user-runtime behavior; do not run it manually as an agent.
 
 ```sh
 #!/bin/sh

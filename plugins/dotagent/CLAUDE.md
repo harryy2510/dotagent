@@ -101,7 +101,7 @@ Default to speed mode for narrow, low-risk tasks. Switch to plan-first execution
 - Do not use `tsc` as the project check command. Use `oxlint --type-aware --type-check`.
 - Use `oxlint` instead of ESLint.
 - Use `oxfmt` instead of Prettier.
-- Use Husky for git hooks. Do not introduce `.githooks` or ad hoc hook folders.
+- Use the repo's active committed hook manager for git hooks: Vite+ projects use `.vite-hooks`, other repos default to Husky `.husky`. Do not introduce `.githooks` or ad hoc hook folders.
 - GitHub Actions workflows must use Node.js 24 with `actions/setup-node@v6` when a Node runtime is needed.
 - Do not add npm, yarn, pnpm, npx, ESLint, Prettier, or `tsc --noEmit` workflows.
 

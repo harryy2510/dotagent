@@ -39,7 +39,7 @@ This repository contains the DotAgent plugin and the shared agent rules it insta
 - Use `oxlint --type-aware --type-check`, not `tsc`.
 - Use `oxlint`, not ESLint.
 - Use `oxfmt`, not Prettier.
-- Use Husky for git hooks. Do not introduce `.githooks` or ad hoc hook folders.
+- Use the repo's active committed hook manager for git hooks: Vite+ projects use `.vite-hooks`, other repos default to Husky `.husky`. Do not introduce `.githooks` or ad hoc hook folders.
 - GitHub Actions workflows must use Node.js 24 with `actions/setup-node@v6` when a Node runtime is needed.
 - Any commits must use Conventional Commit format.
 - Keep scripts POSIX-friendly bash where possible.

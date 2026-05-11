@@ -46,13 +46,13 @@ Only add scripts that write `.env*` after the user asks for dotenvx setup, and d
 Key details:
 - **postinstall uses `;` not `&&`** -- each file decrypts independently (CI jobs may only have one key)
 - **postinstall ends with `; true`** -- never fails the install (Cloudflare builds have no keys)
-- **post-checkout runs `bun install` when Husky is installed** -- branch switches refresh dependencies and trigger the `postinstall` decrypt path
+- **post-checkout runs `bun install` through the active repo hook manager** -- branch switches refresh dependencies and trigger the `postinstall` decrypt path
 - **env:encrypt uses `&&`** -- should fail loudly if encryption fails
 - **types:cf uses `--env-file`** -- reads vars from env file, not wrangler.jsonc
 
 ## Post-checkout Hook
 
-When the repo uses Husky and dotenvx `postinstall` has been added, add `.husky/post-checkout`. This is hook code only; do not run it manually as an agent.
+When dotenvx `postinstall` has been added, add `post-checkout` to the repo's active committed hook directory (`.vite-hooks/post-checkout` for Vite+ projects, otherwise `.husky/post-checkout`). This is hook code only; do not run it manually as an agent.
 
 ```bash
 #!/bin/sh

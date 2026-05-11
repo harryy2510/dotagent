@@ -45,7 +45,7 @@ bash scripts/deslop.sh --staged
 
 ### As pre-commit hook
 
-Add to `.husky/pre-commit` after the conventions check:
+Add to the repo's committed pre-commit hook (`.vite-hooks/pre-commit` for Vite+ projects, otherwise `.husky/pre-commit`) after the conventions check:
 
 ```bash
 bash scripts/deslop.sh --staged

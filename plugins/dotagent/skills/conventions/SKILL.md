@@ -22,15 +22,16 @@ AGENTS.md
 .agents/agents.json
 .agents/README.md
 scripts/agent-check
-.husky/pre-commit
-.husky/pre-push
-.husky/commit-msg
+<hook-dir>/pre-commit
+<hook-dir>/pre-push
+<hook-dir>/commit-msg
+<hook-dir>/post-checkout
 ```
 
-When the repo is a git checkout, bootstrap configures:
+Vite+ projects use `.vite-hooks` for `<hook-dir>`; other repos default to Husky `.husky`. When the repo is a git checkout, bootstrap configures the matching hook path:
 
 ```bash
-git config core.hooksPath .husky
+git config core.hooksPath <hook-runtime-dir>
 ```
 
 ## What This Enforces
@@ -45,7 +46,7 @@ git config core.hooksPath .husky
 | Use `oxlint --type-aware --type-check` | `agent-toolkit repo check` |
 | Use `oxfmt` | `agent-toolkit repo check` |
 | Debug statements, placeholders, empty catches, likely secrets | `agent-toolkit repo check` |
-| Conventional Commit messages | `.husky/commit-msg` |
+| Conventional Commit messages | `<hook-dir>/commit-msg` |
 | No hook bypassing | Global rules |
 
 ## Completion
