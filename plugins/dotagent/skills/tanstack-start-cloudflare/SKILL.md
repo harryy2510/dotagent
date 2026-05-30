@@ -1,6 +1,6 @@
 ---
 name: tanstack-start-cloudflare
-description: "Use when building routes, layouts, breadcrumbs, server functions, error handling, metadata, or deployment config in a TanStack Start app deployed to Cloudflare Workers."
+description: "Use when building routes, layouts, breadcrumbs, Fast Refresh-safe boundaries, server functions, error handling, metadata, or deployment config in a TanStack Start app deployed to Cloudflare Workers."
 ---
 
 ## Routing
@@ -15,6 +15,38 @@ Links: `<Link to="/items/$id" params={{ id }} search={{ tab: 'details' }} />` â€
 
 Never run TanStack Router CLI generation manually â€” `bun run dev` generates the route tree automatically.
 
+## Fast Refresh Boundaries
+
+When TanStack Start SSR runs through `@cloudflare/vite-plugin`, the SSR environment is backed by workerd/Miniflare. Bad HMR invalidation is expensive because SSR updates swap a Worker runtime, not a plain Node module.
+
+TSX files that export React components or hooks must not also export runtime helpers. In route TSX modules, the only tolerated route export is TanStack `Route`.
+
+Do not export these from React TSX modules:
+
+- `validateSearch` schemas
+- loaders or preload functions
+- route data helpers
+- `head` or metadata builders
+- constants used by routes
+- tab value arrays and guards
+- class or variant helpers
+- label, title, or path builders
+- server functions
+
+Move those helpers into colocated `.ts` modules named by responsibility:
+
+- `route-data.ts`
+- `*-loader.ts`
+- `*-search.ts`
+- `*.variants.ts`
+- `*.styles.ts`
+- `*-labels.ts`
+- `*-meta.ts`
+
+Avoid vague module names like `copy`, `utils`, or `helpers` unless the existing local pattern already uses them.
+
+Before finishing route or component work, run `bun check:fast-refresh`, then the repo's normal smallest relevant check, usually `bun lint:check` or `bun check`. If the guard fails, split the TSX export boundary instead of suppressing the check.
+
 ## Layouts
 
 Two layout routes:
@@ -26,18 +58,16 @@ Layout components live in `src/components/app/`: `app-sidebar.tsx`, `app-topbar.
 
 ## Breadcrumbs
 
-No `useEffect`, no global state. Routes declare breadcrumbs in `staticData`. Dynamic labels via `routeContext` in `beforeLoad`.
+No `useEffect`, no global state. Routes declare breadcrumbs in `staticData`. Dynamic labels via `routeContext` in `beforeLoad`. Keep route data implementation in colocated `.ts` files and have the route TSX wire those functions into `Route`.
 
 ```tsx
 // Route definition with breadcrumb
+import { getProjectRouteContext, loadProjectRoute } from './project-route-data'
+
 export const Route = createFileRoute('/_authed/projects/$id')({
   staticData: { breadcrumb: 'Project Details' },
-  beforeLoad: async ({ context, params }) => {
-    const project = await context.queryClient.ensureQueryData(projectQueryOptions(params.id))
-    return { breadcrumb: project.name }
-  },
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(projectQueryOptions(params.id)),
+  beforeLoad: getProjectRouteContext,
+  loader: loadProjectRoute,
 })
 ```
 
@@ -58,16 +88,19 @@ function useBreadcrumbs() {
 
 ## Metadata & Head
 
-Root route sets defaults: charset, viewport, title, description, theme-color, favicon links, manifest. Per-route title overrides via `head` function. Static assets in `public/`: `favicon.ico`, `icon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `manifest.webmanifest`.
+Root route sets defaults: charset, viewport, title, description, theme-color, favicon links, manifest. Per-route title overrides via `head` function. Put nontrivial title, label, and metadata builders in a colocated `*-meta.ts` module and wire them into `Route`. Static assets in `public/`: `favicon.ico`, `icon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `manifest.webmanifest`.
 
 ## Server Functions
 
 Server functions are callable across the network boundary. Treat every input as untrusted even when a route guard exists.
 
-```tsx
+Never declare `createServerFn` in `.tsx`. Put server functions in the API/data layer or a `.ts` route-data module. Do not paper over client/server boundary issues with dynamic imports; fix the import graph.
+
+```ts
+// src/api/items/functions.ts or src/routes/-items/route-data.ts
 import { createServerFn } from '@tanstack/react-start'
 
-const getItems = createServerFn({ method: 'GET' })
+export const getItems = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ cursor: z.string().optional() }))
   .handler(async ({ input }) => {
     const supabase = getSupabaseServerClient()
