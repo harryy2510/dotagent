@@ -1,0 +1,20 @@
+{
+  "name": "dotagent-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "bun run build.ts",
+    "check": "bun run format:check && bun run lint && bun test ../tests ./delivery.test.ts",
+    "lint": "oxlint --type-aware --type-check *.ts && cd .. && site/node_modules/.bin/oxlint tests",
+    "format:check": "cd .. && site/node_modules/.bin/oxfmt --check site/index.html site/*.ts site/style.css site/tokens.css site/package.json site/tsconfig.json README.md .agentsync/README.md .github/workflows/pages.yml tests",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "oxfmt": "^0.68.0",
+    "oxlint": "^1.83.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "vite": "^8.3.0"
+  }
+}

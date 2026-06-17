@@ -1,18 +1,12 @@
 .DS_Store
 *.swp
-*.swo
 *~
-.remember
 .idea
-.vscode.claude/worktrees/
-/.worktrees/
-
-docs/superpowers/
-
-# agents.dev local and generated files
-/.agents/local.json
-/.agents/generated/
-/.agents/intel/
+.vscode
+.worktrees/
+.agents/generated/
+.agents/intel/
+.agents/local.json
 /CLAUDE.md
 /.codex/
 /.claude/
@@ -22,6 +16,6 @@ docs/superpowers/
 /.windsurf/
 /.opencode/
 /.junie/
-/opencode.json
-/.vscode/mcp.json
-/.vscode/settings.json
+/.grok/
+/.factory/
+node_modules/

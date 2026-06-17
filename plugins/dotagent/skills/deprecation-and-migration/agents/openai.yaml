@@ -1,4 +1,0 @@
-interface:
-  display_name: "Deprecation And Migration"
-  short_description: "Legacy cleanup, migrations, compatibility, and removal plans"
-  default_prompt: "Use $deprecation-and-migration to replace this legacy path and verify stale surfaces are gone."

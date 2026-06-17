@@ -1,0 +1,31 @@
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "install.sh"
+      - "README.md"
+      - ".agentsync/skills/**"
+      - ".agentsync/memory/fragments/dotagent.md"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
+  id-token: write
+
+jobs:
+  deploy:
+    uses: Utilities-Studio/infra/.github/workflows/cloudflare-pages-deploy.yml@main
+    with:
+      project_name: dotagent
+      working_directory: site
+      build_output_directory: dist
+      pre_deploy_commands: bun run check
+      account_id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

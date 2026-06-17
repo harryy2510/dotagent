@@ -1,4 +1,0 @@
-interface:
-  display_name: "Deslop"
-  short_description: "Scan for AI slop and risky code quality patterns"
-  default_prompt: "Use $deslop to scan this change for AI slop and risky leftovers."
