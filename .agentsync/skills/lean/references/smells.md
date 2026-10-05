@@ -24,6 +24,7 @@ Contents:
 16. Comments, docs and files
 17. Outside code: questions, copy, tasks, rules
 18. The deletion test
+19. Where calls run: server first, and never without a session
 
 ---
 
@@ -423,3 +424,67 @@ error handling that prevents data loss, audit records, accessibility.
 
 A deletion is its own change: it only deletes and merges, adds no features, and proves through
 the existing tests that behaviour is unchanged. Report net lines removed.
+
+## 19. Where calls run: server first, and never without a session
+
+**Client calls that should be server calls.** Data fetched in the browser with `fetch`, `ofetch`
+or `useQuery` against our own API, when a route loader or server function could do it.
+
+```tsx
+// Bad: the browser calls the API, the route and its shape are public, the session check is
+// wherever the API remembered to put it, and every visitor's bundle carries the client
+const { data } = useQuery({ queryKey: ['projects'], queryFn: () => api('/api/projects') })
+
+// Good: one server function, session and input checked on the server, the loader prefetches
+export const listProjects = createServerFn({ method: 'GET' })
+	.middleware([requireSession])
+	.handler(({ context }) => projects.list(context.session.organizationId))
+
+export const Route = createFileRoute('/_authed/projects')({
+	loader: ({ context }) => context.queryClient.ensureQueryData(projectsQuery),
+})
+```
+
+Why the server is the default:
+
+- Tokens, API keys, internal URLs and third-party calls never reach the bundle.
+- The session and the input are checked where the user cannot change the code.
+- No public route to protect, no CORS, fewer round trips, smaller bundle, data ready at first
+  paint.
+
+What stays in the browser: live updates (websocket, server-sent events), direct uploads to a
+signed URL, third-party widgets that must call their own service, and purely local state.
+
+Not the reason: making calls "harder to read". Server function requests are still visible in
+the network tab. The protection is the server-side check, so every server function still
+validates its input and checks the session and permission.
+
+**Calls without a session.** Requests that need a user, sent when there is none.
+
+```tsx
+// Bad: every page, signed in or not, asks for the user and the organization
+function SiteNav() {
+	const me = useQuery({ queryKey: ['me'], queryFn: getMe })        // 401 on the marketing site
+	const org = useQuery({ queryKey: ['org'], queryFn: getOrg })      // fires before me resolves
+}
+
+// Good: the session is read once on the server, the guard redirects before any data call
+export const Route = createFileRoute('/_authed')({
+	beforeLoad: async () => {
+		const session = await getSession()
+		if (!session) throw redirect({ to: '/sign-in' })
+		return { session }
+	},
+})
+// Public pages read the session from the root loader and simply do not render signed-in parts
+```
+
+Signs:
+
+- 401 responses in the network tab for signed-out visitors, or on every page load.
+- `/me`, `/session` or the organization fetched by several components on one screen.
+- `if (!session) return null` repeated across components under a guarded layout.
+- Polling or prefetching that keeps running after sign-out.
+
+Fix: one guard at the route or layout; server functions read the session first and return or
+throw before doing anything else; signed-out visitors trigger no signed-in calls.

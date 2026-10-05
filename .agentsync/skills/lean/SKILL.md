@@ -1,6 +1,6 @@
 ---
 name: lean
-description: 'Always-on rules against over-engineering, re-invention and inconsistency, for every agent and every kind of work (code, tests, config, docs, design, backlog). One source reused everywhere; parse once at the edge and trust the types; libraries before hand-written code; copy the nearest existing pattern; delete what does not change behaviour or security. Also the review modes: "lean review" (a diff), "lean audit" (a repo), "lean env" (environment variables), "lean ledger" (deliberate shortcuts). Use for any implementation, refactor, bug fix, test, review or plan, and when the user says "over-engineered", "bloat", "simplify", "what can we delete", "lean review", "lean audit".'
+description: 'Always-on rules against over-engineering, re-invention and inconsistency, for every agent and every kind of work (code, tests, config, docs, design, backlog). One source reused everywhere; parse once at the edge and trust the types; libraries before hand-written code; copy the nearest existing pattern; delete what does not change behaviour or security; data calls on the server first, and never without a session. Also the review modes: "lean review" (a diff), "lean audit" (a repo), "lean env" (environment variables), "lean ledger" (deliberate shortcuts). Use for any implementation, refactor, bug fix, test, review or plan, and when the user says "over-engineered", "bloat", "simplify", "what can we delete", "lean review", "lean audit".'
 ---
 
 # Lean
@@ -71,10 +71,23 @@ Stop at the first step that holds:
     a user sees, pays or is promised, or needs a new dependency or a security trade-off.
 13. **Apply a rule to what it was stated for.** Do not stretch a rule to cases that only look
     similar; ask when unsure.
+14. **Server first.** Data is loaded and changed on the server: route loaders and server
+    functions (TanStack Start `createServerFn`, or the framework's equivalent). The browser calls
+    an API directly only for what must happen in the browser (live updates, a direct upload to a
+    signed URL, a third-party widget). Server functions keep tokens, keys, internal URLs and
+    third-party calls out of the bundle, check the session and the input on the server, and need
+    no public route or CORS. Hiding a call from the network tab is not the protection; the
+    server-side check is.
+15. **No call without a session.** Signed-in screens check the session once, at the route guard
+    or layout, and redirect before any data call. Calls that need a user never fire for a
+    signed-out visitor (no 401s on public pages, no `/me` on every marketing page). Server
+    functions read the session first and stop there. Components do not re-check it.
 
 ## The floor: never "simplify" away
 
-Validation at trust boundaries, authentication and authorization, tenant isolation, error
+Validation at trust boundaries, authentication and authorization (the server-side check stays
+even when a route guard already redirects; the guard is for the screen, the server check is the
+security), tenant isolation, error
 handling that prevents data loss, audit records, accessibility, compliance requirements, and
 anything the user explicitly asked for. Lean means less code, never less safety.
 
@@ -105,6 +118,8 @@ Answer each, then fix what fails:
 9. Is the bug fix at the root, for every caller, with the workaround gone?
 10. Do the tests test behaviour without bending the design?
 11. Did I ask only what I truly could not decide?
+12. Does any data call run in the browser that could be a loader or server function?
+13. Can any call that needs a user fire without a session?
 
 ## Output
 
