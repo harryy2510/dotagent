@@ -1,166 +1,161 @@
 ---
 name: ui
-description: "Use when setting up UI foundation, configuring Tailwind CSS v4, adding shadcn/ui with base-ui, theming with CSS variables, building component variants with CVA, responsive grid patterns, dark mode, adding animation/toast/icon infrastructure, or reviewing UI code for Web Interface Guidelines compliance (accessibility, UX, design best practices)."
+description: "Use when setting up or changing UI foundations in React: Tailwind CSS v4 and design tokens (OKLCH, semantic tokens), dark mode, cn(), component variants with CVA, React 19 component patterns, layout and responsive rules, motion with reduced-motion support, icons, toasts, design quality, accessibility (WCAG 2.2 AA), and reviews against the Web Interface Guidelines. For adding or composing shadcn components, also load the shadcn skill."
 ---
 
-# UI Foundation — Tailwind v4 + shadcn/ui + base-ui
+# UI foundations: Tailwind v4, tokens, React 19
 
-No inline styles, CSS modules, or separate CSS files. Tailwind only.
+Styling is Tailwind and design tokens only: no inline style objects, no CSS modules, no new CSS
+files beyond the one global stylesheet. If the repo has a design system document or boards, they
+decide colours, type, spacing and copy; this skill only says how to build them.
 
-## Tailwind CSS v4
-
-### styles.css structure
+## Tailwind v4
 
 ```css
+/* src/styles.css: the only stylesheet */
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
-/* Font imports, then theme variables — OKLCH for better color perception */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0.006 286.033);
-  --primary-foreground: oklch(0.985 0 0);
-  /* ... secondary, muted, accent, destructive, border, ring, card, radius */
+	--background: oklch(1 0 0);
+	--foreground: oklch(0.145 0 0);
+	--primary: oklch(0.205 0.006 286);
+	--primary-foreground: oklch(0.985 0 0);
+	--muted: oklch(0.97 0 0);
+	--muted-foreground: oklch(0.556 0 0);
+	--border: oklch(0.922 0 0);
+	--ring: oklch(0.708 0 0);
+	--destructive: oklch(0.577 0.245 27.3);
+	--radius: 0.625rem;
 }
-.dark { /* ... dark overrides */ }
-```
 
-### v3 to v4 Key Changes
+.dark {
+	--background: oklch(0.145 0 0);
+	--foreground: oklch(0.985 0 0);
+	/* ...every token redefined */
+}
 
-| v3 | v4 |
-|---|---|
-| `tailwind.config.ts` | `@theme` in CSS |
-| `@tailwind base/components/utilities` | `@import "tailwindcss"` |
-| `darkMode: "class"` | `@custom-variant dark (&:is(.dark *))` |
-| `theme.extend.colors` | CSS variables in `:root` |
-
-## shadcn/ui with base-ui
-
-Uses **base-ui** primitives. **Never radix-ui.** Components in `src/components/ui/`.
-
-Add components: `bunx shadcn@latest add button card dialog ...`
-
-### components.json
-
-```json
-{
-  "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "default",
-  "tailwind": { "config": "", "css": "src/styles.css", "baseColor": "neutral" },
-  "aliases": { "components": "@/components", "utils": "@/libs/cn", "ui": "@/components/ui", "hooks": "@/hooks" }
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-primary: var(--primary);
+	/* ...map each token so bg-primary, text-muted-foreground work */
 }
 ```
 
-## cn() utility
+| Tailwind v3                         | v4                                    |
+| ----------------------------------- | ------------------------------------- |
+| `tailwind.config.ts`                | `@theme` in CSS                       |
+| `@tailwind base/components/utilities` | `@import 'tailwindcss'`             |
+| `darkMode: 'class'`                 | `@custom-variant dark (...)`          |
+| `theme.extend.colors`               | CSS variables + `@theme inline`       |
 
-File: `src/libs/cn.ts` — `clsx` + `tailwind-merge`:
+## Tokens
+
+- Three layers: brand values (raw OKLCH) → semantic tokens (`--primary`, `--muted`,
+  `--destructive`) → utilities (`bg-primary`). Components use semantic utilities only.
+- Never raw palette classes (`bg-blue-500`) or hex values in components; never `dark:` overrides
+  on components (tokens switch with the theme).
+- Every token exists in light and dark; check contrast in both (4.5:1 body text, 3:1 large text
+  and UI parts).
+
+## cn() and variants
 
 ```ts
+// src/lib/cn.ts
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-export function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)) }
+export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs))
 ```
 
-## Design Token Hierarchy
+```ts
+import { cva, type VariantProps } from 'class-variance-authority'
 
-Brand Tokens (abstract) -> Semantic Tokens (--primary, --muted) -> Component Tokens (bg-primary).
-Use OKLCH color space. Define semantic tokens as CSS variables, reference via Tailwind classes.
-
-## Component Patterns
-
-### CVA (Class Variance Authority)
-
-Define variants with `cva()` from `class-variance-authority`. Pattern:
-
-```typescript
-const buttonVariants = cva('base-classes...', {
-  variants: {
-    variant: { default: '...', destructive: '...', outline: '...', ghost: '...', link: '...' },
-    size: { default: 'h-10 px-4 py-2', sm: 'h-9 px-3', lg: 'h-11 px-8', icon: 'size-10' },
-  },
-  defaultVariants: { variant: 'default', size: 'default' },
+export const badgeVariants = cva('inline-flex items-center rounded-full px-2.5 text-xs font-medium', {
+	variants: {
+		tone: { neutral: 'bg-muted text-muted-foreground', ok: 'bg-ok/10 text-ok', bad: 'bg-destructive/10 text-destructive' }
+	},
+	defaultVariants: { tone: 'neutral' }
 })
+export type BadgeProps = VariantProps<typeof badgeVariants>
 ```
 
-### Compound Components (React 19 — no forwardRef)
+- Variant props types derive from `cva` (`VariantProps`); never hand-written unions.
+- Variants live in a `.variants.ts` module when a React file would otherwise export non-component
+  values (Fast Refresh, see `tanstack-start-cloudflare`).
 
-```typescript
-export function Card({ className, ref, ...props }: HTMLAttributes<HTMLDivElement> & { ref?: Ref<HTMLDivElement> }) {
-  return <div ref={ref} className={cn('rounded-lg border bg-card text-card-foreground shadow-sm', className)} {...props} />
+## React 19 components
+
+```tsx
+import type { ComponentProps } from 'react'
+import { cn } from '@/lib/cn'
+
+export function Card({ className, ...props }: ComponentProps<'div'>) {
+	return <div className={cn('rounded-lg border bg-card text-card-foreground', className)} {...props} />
 }
 ```
 
-### Responsive Grid
+- `ref` is a normal prop in React 19: no `forwardRef`. Props derive from `ComponentProps<'tag'>`
+  or the wrapped component's props.
+- Named imports from `react`; never `import React`.
+- One component per file for exported components; small private pieces may share the file.
+- Compose existing components before writing new ones (`shadcn` skill).
 
-Use `cva` with `cols` (1-4 with breakpoints) and `gap` (none/sm/md/lg/xl) variants.
+## Layout
 
-## Dark Mode
+- Flex and grid with `gap-*`; never `space-x-*`/`space-y-*` or margins between siblings.
+- Mobile first: design at 390 px width, then add `sm:`/`md:`/`lg:`; no horizontal scroll at any
+  width.
+- `size-*` when width equals height; `truncate`/`line-clamp-*` for overflow.
+- Container widths and spacing from the design system, not one-off values.
 
-CSS variable theming via `.dark` class on `<html>`. Toggle with localStorage — read on mount, persist on change, toggle `document.documentElement.classList`.
+## Dark mode
 
-## Animations
+Class on `<html>` set before paint (see `zustand-x-ui-state` for the no-flash theme pattern);
+tokens do the rest.
 
-ALWAYS use `motion/react`. Never CSS keyframes or Tailwind animate utilities.
+## Motion
 
-```tsx
-import { motion } from 'motion/react'
-<motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} />
-```
-
-## Toasts
-
-**sonner** — add `<Toaster />` in root layout. Use `toast.success('Saved')`.
+- `motion/react` for component animation; CSS transitions are fine for simple hover and focus
+  states.
+- Motion explains a change (enter, exit, reorder, progress); it never decorates or loops.
+- Respect reduced motion everywhere: `useReducedMotion()` or the `motion-safe:`/`motion-reduce:`
+  variants; nothing moves for those users except essential progress indicators.
 
 ## Icons
 
-**Lucide React** exclusively. `import { Check, Loader2, X } from 'lucide-react'`. Size via `className="size-4"`.
+- One icon source per repo, through one shared wrapper if the source needs one (for example an
+  animated icon set driven by the parent control's hover and focus). Default for new repos:
+  `lucide-react`.
+- Same meaning, same icon, everywhere; keep a meaning-to-icon map when the repo has many icons.
+- Icons with meaning get an accessible name; decorative icons are `aria-hidden`.
 
-## Design Quality
+## Feedback
 
-When building new interfaces, commit to a bold aesthetic direction:
-- **Typography**: Distinctive, characterful font choices. Avoid generic fonts.
-- **Color**: Dominant colors with sharp accents. OKLCH for perceptual uniformity.
-- **Motion**: High-impact moments — orchestrated page loads with staggered reveals.
-- **Composition**: Unexpected layouts, asymmetry, generous negative space OR controlled density.
-- **Backgrounds**: Atmosphere and depth — gradient meshes, noise textures, layered transparencies.
+- Toasts with `sonner` (one `<Toaster />` in the root); toasts confirm actions, never carry errors
+  the user must act on (show those inline).
+- Every async view has loading (skeletons that match the layout), empty (what to do next) and
+  error (what happened, how to recover) states.
 
-Match implementation complexity to vision.
+## Accessibility (WCAG 2.2 AA)
 
-## Accessibility
+See `references/accessibility-checklist.md`. Minimum on every change: keyboard reachable, visible
+focus, labels, contrast in both themes, no information by colour alone, reduced motion, target
+size at least 24×24 px.
 
-Use `references/accessibility-checklist.md` for forms, dialogs, navigation, menus, custom controls, keyboard interactions, or release review.
+## Design quality
 
----
+When the repo has no design system, decide one deliberately and write it down: a type pair, a
+colour system with one accent, a spacing scale, radius, and motion rules. Avoid default-looking
+output (generic fonts, purple gradients, everything in identical rounded cards). Spend boldness in
+one place per screen.
 
-# Web Interface Guidelines
+## Reviewing against the Web Interface Guidelines
 
-Review files for compliance with Web Interface Guidelines.
+When asked to review UI files:
 
-## How It Works
-
-1. Fetch the latest guidelines from the source URL below
-2. Read the specified files (or prompt user for files/pattern)
-3. Check against all rules in the fetched guidelines
-4. Output findings in the terse `file:line` format
-
-## Guidelines Source
-
-Fetch fresh guidelines before each review:
-
-```
-https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md
-```
-
-Use WebFetch to retrieve the latest rules. The fetched content contains all the rules and output format instructions.
-
-## Usage
-
-When a user provides a file or pattern argument:
-1. Fetch guidelines from the source URL above
-2. Read the specified files
-3. Apply all rules from the fetched guidelines
-4. Output findings using the format specified in the guidelines
-
-If no files specified, ask the user which files to review.
+1. Fetch the current guidelines:
+   `https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md`.
+2. Read the files (ask which ones if none are given).
+3. Report findings in the guidelines' `file:line` format.

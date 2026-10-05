@@ -2,6 +2,9 @@
 name: vite-build-ssr
 description: Vite library mode, multi-page apps, JavaScript API, and SSR guidance
 ---
+> In Vite+ projects, import `defineConfig` and other Vite APIs from `vite-plus`; examples below use
+> plain `vite` imports as the Vite docs do.
+
 
 # Build and SSR
 

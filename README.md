@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <code>16 skills</code> · <code>1 memory fragment</code> · <code>AgentSync</code>
+  <code>21 skills</code> · <code>1 memory fragment</code> · <code>AgentSync</code>
 </p>
 
 ---
@@ -99,13 +99,20 @@ These are **agent instructions, not a sandbox or enforcement engine**. Whether a
 
 Every skill is readable Markdown. Follow a name to inspect exactly what your agent gets.
 
+### Always on
+
+| Skill                                                 | What it brings                                                                                  |
+| :---------------------------------------------------- | :---------------------------------------------------------------------------------------------- |
+| [`lean`](.agentsync/skills/lean/SKILL.md)             | No over-engineering: one source, parse once, libraries first, consistent patterns, delete bloat |
+| [`compliance`](.agentsync/skills/compliance/SKILL.md) | Privacy, security and compliance gate: GDPR, CCPA, HIPAA, SOC 2, OWASP, honest claims           |
+
 ### Foundation
 
-| Skill                                                                               | What it brings                                           |
-| :---------------------------------------------------------------------------------- | :------------------------------------------------------- |
-| [`toolchain`](.agentsync/skills/toolchain/SKILL.md)                                 | Bun, TypeScript, Oxc, hooks, and consistent tooling      |
-| [`source-driven-development`](.agentsync/skills/source-driven-development/SKILL.md) | Current primary sources before remembered framework APIs |
-| [`api-and-interface-design`](.agentsync/skills/api-and-interface-design/SKILL.md)   | Explicit contracts, module boundaries, and useful errors |
+| Skill                                                                               | What it brings                                                   |
+| :---------------------------------------------------------------------------------- | :--------------------------------------------------------------- |
+| [`toolchain`](.agentsync/skills/toolchain/SKILL.md)                                 | Bun and Vite+: format, type-aware lint, checks, tests, hooks, CI |
+| [`source-driven-development`](.agentsync/skills/source-driven-development/SKILL.md) | Installed-version sources before remembered framework APIs       |
+| [`api-and-interface-design`](.agentsync/skills/api-and-interface-design/SKILL.md)   | Contracts, one error shape, pagination, idempotency, versioning  |
 
 ### Interface
 
@@ -119,21 +126,24 @@ Every skill is readable Markdown. Follow a name to inspect exactly what your age
 
 ### Platform & data
 
-| Skill                                                                                             | What it brings                                                |
-| :------------------------------------------------------------------------------------------------ | :------------------------------------------------------------ |
-| [`tanstack-start-cloudflare`](.agentsync/skills/tanstack-start-cloudflare/SKILL.md)               | Routes, server functions, and Cloudflare deployment patterns  |
-| [`supabase-auth-data`](.agentsync/skills/supabase-auth-data/SKILL.md)                             | Clients, authentication, migrations, RLS, and generated types |
-| [`supabase-postgres-best-practices`](.agentsync/skills/supabase-postgres-best-practices/SKILL.md) | Indexes, query plans, pooling, and RLS performance            |
-| [`cloudflare`](.agentsync/skills/cloudflare/SKILL.md)                                             | Workers, Wrangler, and platform-aware implementation          |
-| [`vite`](.agentsync/skills/vite/SKILL.md)                                                         | Build configuration, plugins, and runtime boundaries          |
+| Skill                                                                               | What it brings                                                   |
+| :---------------------------------------------------------------------------------- | :--------------------------------------------------------------- |
+| [`hono`](.agentsync/skills/hono/SKILL.md)                                           | APIs on Bun, Node and Workers: validation, errors, authorization |
+| [`drizzle`](.agentsync/skills/drizzle/SKILL.md)                                     | Schemas, derived types, scoped queries, immutable migrations     |
+| [`postgres`](.agentsync/skills/postgres/SKILL.md)                                   | Indexes, query plans, pooling, RLS, locking, safe migrations     |
+| [`better-auth`](.agentsync/skills/better-auth/SKILL.md)                             | Sessions, passkeys, two-factor, organizations, SSO and SCIM      |
+| [`supabase-auth-data`](.agentsync/skills/supabase-auth-data/SKILL.md)               | Supabase clients, authentication, RLS, and generated types       |
+| [`tanstack-start-cloudflare`](.agentsync/skills/tanstack-start-cloudflare/SKILL.md) | Routes, loaders, server functions, and Workers deployment        |
+| [`cloudflare`](.agentsync/skills/cloudflare/SKILL.md)                               | Workers, bindings, `wrangler.jsonc`, and commands the user runs  |
+| [`vite`](.agentsync/skills/vite/SKILL.md)                                           | Vite inside Vite+: config, plugins, env exposure, SSR, packing   |
 
 ### Quality
 
-| Skill                                                                         | What it brings                                                |
-| :---------------------------------------------------------------------------- | :------------------------------------------------------------ |
-| [`testing`](.agentsync/skills/testing/SKILL.md)                               | Vitest, Testing Library, and Playwright at the right layer    |
-| [`debugging`](.agentsync/skills/debugging/SKILL.md)                           | Reproduce, trace the cause, and verify the repair             |
-| [`security-and-hardening`](.agentsync/skills/security-and-hardening/SKILL.md) | Auth, secrets, inputs, webhooks, and agentic trust boundaries |
+| Skill                                                         | What it brings                                                |
+| :------------------------------------------------------------ | :------------------------------------------------------------ |
+| [`testing`](.agentsync/skills/testing/SKILL.md)               | `vp test`, Testing Library, and Playwright at the right layer |
+| [`debugging`](.agentsync/skills/debugging/SKILL.md)           | Reproduce, fix the root cause once, and verify the repair     |
+| [`security-audit`](.agentsync/skills/security-audit/SKILL.md) | Source-first vulnerability review and full security audits    |
 
 ## Installer options
 
@@ -219,8 +229,10 @@ Use `--scope project` from the project directory for project installs. To remove
 ├── memory/fragments/dotagent.md   # Shared rules and skill routing
 └── skills/<name>/                # SKILL.md and bundled references
 install.sh                        # Guided, portable setup
-site/                             # HTML + TypeScript, built with Vite
-tests/                            # Isolated installer and site checks
+site/                             # HTML + TypeScript, built with Vite+
+├── vite.config.ts                # Build, format, lint, test and staged config
+└── tests/                        # Isolated installer and site checks
+.vite-hooks/                      # Git hooks: vp staged, then the full check
 .github/workflows/pages.yml       # Shared Utilities Studio deployment
 ```
 
@@ -228,13 +240,16 @@ tests/                            # Isolated installer and site checks
 
 ```sh
 cd site
-bun install
+bun install        # also enables the .vite-hooks Git hooks
 bun run dev
 
-bun run check
+bun run check      # vp check (format, type-aware lint, type check) + vp test
+bun run fix        # format and auto-fix
 bun run build
 bun run preview
 ```
+
+Pre-commit runs `vp staged` on staged files; pre-push runs `bun run check`.
 
 The build produces `site/dist`, including the root installer at `/install`,
 the README at `/readme.md`, and the public skill files under `/pack/`.
@@ -276,4 +291,4 @@ DotAgent is maintained by [Hariom Sharma](https://github.com/harryy2510). It bui
 - **[OWASP GenAI Security Project](https://genai.owasp.org/llm-top-10/)**. Guidance for LLM and agentic risk checks.
 - **[Utilities Studio infrastructure](https://github.com/Utilities-Studio/infra)**. The reusable Pages deployment workflow.
 
-Official documentation remains the source of truth for stack guidance: [React](https://react.dev), [TanStack](https://tanstack.com), [Supabase](https://supabase.com/docs), [PostgreSQL](https://www.postgresql.org/docs/), [Cloudflare](https://developers.cloudflare.com/workers/), [shadcn/ui](https://ui.shadcn.com), [Tailwind CSS](https://tailwindcss.com), [React Hook Form](https://react-hook-form.com), [Zod](https://zod.dev), [Bun](https://bun.sh), [Oxc](https://oxc.rs), [Vite](https://vite.dev), and [Playwright](https://playwright.dev).
+Official documentation remains the source of truth for stack guidance: [React](https://react.dev), [TanStack](https://tanstack.com), [Supabase](https://supabase.com/docs), [PostgreSQL](https://www.postgresql.org/docs/), [Cloudflare](https://developers.cloudflare.com/workers/), [shadcn/ui](https://ui.shadcn.com), [Tailwind CSS](https://tailwindcss.com), [React Hook Form](https://react-hook-form.com), [Zod](https://zod.dev), [Bun](https://bun.sh), [Vite+](https://viteplus.dev), [Vite](https://vite.dev), and [Playwright](https://playwright.dev).

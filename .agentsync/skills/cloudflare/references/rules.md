@@ -337,7 +337,7 @@ A Promise that is not `await`ed, `return`ed, or passed to `ctx.waitUntil()` is a
 **Check**: every `fetch()`, `env.*.put()`, `env.*.send()`, and any other async call is handled. Enable type-aware floating promise checks.
 
 ```bash
-oxlint --type-aware --type-check --deny typescript/no-floating-promises src/
+vp check   # vite.config.ts: lint.rules['typescript/no-floating-promises'] = 'error'
 ```
 
 ```ts

@@ -49,9 +49,12 @@ create table events (
 
 Guidelines:
 
-- Single database: `bigint identity` (sequential, 8 bytes, SQL-standard)
-- Distributed/exposed IDs: UUIDv7 (requires pg_uuidv7) or ULID (time-ordered, no
-  fragmentation)
+- Single database, internal IDs: `bigint identity` (sequential, 8 bytes, SQL-standard)
+- Distributed or exposed IDs: time-ordered IDs only. PostgreSQL 18+ has a native `uuidv7()`
+  function (no extension); older versions need `pg_uuidv7`. Application-generated ULIDs work too.
+- IDs shown to users or in APIs: a type prefix plus a lowercase ULID (`prj_01j9x...`) generated in
+  one helper in the app, stored as `text`; the prefix makes a wrong ID type fail fast. Never
+  sequential IDs in public URLs (they leak counts and invite enumeration).
 - `serial` works but `identity` is SQL-standard and preferred for new
   applications
 - Avoid random UUIDs (v4) as primary keys on large tables (causes index

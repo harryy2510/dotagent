@@ -1,12 +1,15 @@
-import { expect, test } from "bun:test";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { expect, test } from "vite-plus/test";
+import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { build, createServer, preview } from "vite";
+import { build, createServer, preview } from "vite-plus";
 import { publicFiles } from "./site-content.ts";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
+const skillCount = (
+  await readdir(join(root, "../.agentsync/skills"), { withFileTypes: true })
+).filter((entry) => entry.isDirectory()).length;
 
 test("development and production serve every source link as the actual file", async () => {
   const outDir = await mkdtemp(join(tmpdir(), "dotagent-site-"));
@@ -33,7 +36,7 @@ test("development and production serve every source link as the actual file", as
       if (!address || typeof address === "string") throw new Error("Missing preview address");
       const origin = `http://127.0.0.1:${address.port}`;
       const page = await (await fetch(origin)).text();
-      expect(page.match(/class="skill-row"/g)).toHaveLength(16);
+      expect(page.match(/class="skill-row"/g)).toHaveLength(skillCount);
       expect(page).toContain("curl -fsSL https://dotagent.dev/install | sh");
       expect(page).not.toContain("--source");
       expect(page).not.toContain("<!--skill-rows-->");

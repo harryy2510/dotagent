@@ -1,43 +1,61 @@
 ---
 name: source-driven-development
-description: "Use when implementing framework-specific code, choosing library APIs, upgrading dependencies, or when correctness depends on current official documentation."
+description: "Use when correctness depends on a library's or framework's current API: writing framework-specific code, choosing between library APIs, upgrading or migrating versions, configuring tools, or reviewing code that may use stale APIs. Detect the installed version, read the official source for that version, implement, cite."
 ---
 
-# Source-Driven Development
+# Source-driven development
 
-Use current primary sources for framework and library decisions. This skill is inspired by addyosmani/agent-skills and adapted for DotAgent speed mode.
+Write framework code from the installed version's official source, not from memory. Models are
+trained on older APIs; libraries change monthly.
 
-## When to Apply
+## When
 
-- Writing framework-specific code from memory would be risky.
-- The user asks for "latest", "current", "official", "verify", or "best practice".
-- Creating starter code or patterns that other repos will copy.
-- Upgrading dependencies or migrating across framework versions.
-- Reviewing code that may use stale APIs.
+- Any framework or library API you are not certain about for the installed version.
+- Config keys, CLI flags, file names, migration steps.
+- Upgrades and migrations.
+- The user asks for "latest", "current", "official" or "best practice".
 
-Skip it for typos, renames, pure logic, or simple repo-local convention edits where external docs do not affect correctness.
+Skip for pure logic, renames, typos and repo-local conventions that do not depend on external
+behaviour.
 
 ## Workflow
 
-1. Detect the exact stack and version from local files such as `package.json`, `bun.lock`, `Cargo.toml`, `pyproject.toml`, `go.mod`, or installed CLI output.
-2. Fetch the smallest relevant official page: API reference, migration guide, release note, or standard document.
-3. Prefer sources in this order: official docs, official changelog/blog, standards docs, runtime/browser compatibility data.
-4. Treat tutorials, Stack Overflow, issue comments, and AI summaries as secondary context only.
-5. Implement the repo-local pattern that matches the verified source.
-6. If official docs conflict with existing code, state the conflict and choose the least disruptive repo-consistent path unless the user asked for modernization.
-7. Cite the source in the final answer for non-obvious framework decisions. Use code comments only when the citation materially helps future maintainers.
+1. **Detect the exact version** from `package.json` and `bun.lock` (or `Cargo.toml`, `go.mod`,
+   `pyproject.toml`), or the installed package's `package.json` in `node_modules`.
+2. **Read the source for that version,** in this order:
+   1. the installed package itself: its `.d.ts` types, README and `CHANGELOG.md` in
+      `node_modules/<pkg>`; types are the ground truth for signatures;
+   2. official docs for that major version (API reference, migration guide, release notes);
+   3. official repository source and tests;
+   4. standards documents (RFCs, WHATWG, TC39) and runtime compatibility data.
+3. Community posts, issue comments and AI summaries are hints to verify, never the reason for
+   production code.
+4. **Implement the repo-local pattern** that matches the verified API (copy the nearest existing
+   usage; `lean` rule 5).
+5. If the docs conflict with existing code, say so and take the least disruptive consistent path
+   unless the user asked to modernize.
+6. **Cite** the deep link (not a homepage) in the final answer for non-obvious decisions; a code
+   comment only when it saves a future maintainer a search.
+
+## Upgrades
+
+- Read every release note and migration guide between the current and target version.
+- List breaking changes that touch this repo (search for each changed API).
+- Propose the exact version change and wait for approval (`toolchain`: dependencies need
+  approval).
+- Upgrade one major at a time; run `bun run check` after each.
+- Remove compatibility shims and deprecated usages in the same change.
 
 ## Rules
 
-- Do not guess API signatures, config keys, file names, or migration steps when official docs are cheap to check.
-- Do not cite a homepage when a deep API page exists.
-- Do not cite community posts as the reason for production code.
-- If a pattern cannot be verified, label it as unverified and keep the implementation conservative.
-- Stop fetching once the required decision is supported; speed mode still applies.
+- Do not guess signatures, option names or defaults when the types or docs are cheap to read.
+- Do not copy examples from a different major version.
+- Mark anything you could not verify as unverified and keep the implementation conservative.
+- Stop researching once the decision is supported.
 
 ## Output
 
-- Stack/version detected.
-- Sources used and what decision each source supported.
-- Code or config changed.
-- Focused verification command and result.
+- Stack and version detected.
+- Sources used, each with the decision it supported.
+- What changed.
+- The check that verified it.

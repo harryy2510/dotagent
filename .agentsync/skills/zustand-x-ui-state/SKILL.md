@@ -1,106 +1,87 @@
 ---
 name: zustand-x-ui-state
-description: "Use when managing client-side UI state (sidebars, modals, filters, tabs, theme) in React. Use when deciding where state belongs between zustand-x and React Query. Use when creating or modifying zustand-x stores."
+description: "Use when deciding where client state lives in React (URL, component state, form, server cache, or a store) and when creating or changing zustand-x v6 stores for shared UI state: sidebars, modals, selections, view preferences, theme. Covers the state boundary table, store shape, selectors and actions, theme without a flash, and what never goes in a store."
 ---
 
-# zustand-x v6 for UI State
+# Client UI state: zustand-x v6
 
-zustand-x manages **client-side UI state only**. Never server data.
+Most state does not need a store. Pick the first row that fits:
 
-**Package**: `zustand-x` (v6+) — import from `zustand-x`, NOT `@zustand-x/core`.
+| State                                                     | Lives in                                  |
+| --------------------------------------------------------- | ----------------------------------------- |
+| Anything that should survive a refresh or a shared link (tabs, filters, search, pagination, selected item) | URL search params (TanStack Router `validateSearch`) |
+| Data from the server                                      | TanStack Query                            |
+| Form fields, validation, dirty state                      | react-hook-form                           |
+| Used by one component (open/closed, hover, local input)   | `useState` in that component              |
+| Shared by distant components and not in the URL (sidebar collapsed, active modal, command palette, theme, multi-select across a list) | a zustand-x store |
 
-## Boundary Rule
+Import from `zustand-x` (v6+), never `@zustand-x/core`.
 
-| Source | Manager |
-|---|---|
-| API / Supabase data | React Query |
-| Client UI state (sidebar, modals, filters, tabs, theme) | zustand-x |
-| Form state | react-hook-form |
-| URL-persisted state | TanStack Router search params |
+## A store
 
-## Store Creation (v6 API)
-
-```typescript
+```ts
+// src/stores/ui-store.ts
 import { createStore } from 'zustand-x'
 
-export const uiStore = createStore(
-  {
-    sidebar: { open: true },
-    modals: { activeModal: null as string | null, data: {} as Record<string, unknown> },
-    filters: {} as Record<string, unknown>,
-    theme: getInitialTheme(), // reads localStorage + prefers-color-scheme
-  },
-  { name: 'ui', mutative: true },
-)
+type ModalId = 'invite' | 'rename-project' | 'delete-project'
+
+type UiState = {
+	sidebarOpen: boolean
+	modal: { id: ModalId; payload: { projectId: string } } | null
+}
+
+const initialState: UiState = { sidebarOpen: true, modal: null }
+
+export const uiStore = createStore(initialState, { name: 'ui', mutative: true })
+	.extendSelectors(({ get }) => ({
+		isModalOpen: (id: ModalId) => get('modal')?.id === id
+	}))
+	.extendActions(({ get, set }) => ({
+		toggleSidebar: () => set('sidebarOpen', !get('sidebarOpen')),
+		openModal: (modal: NonNullable<UiState['modal']>) => set('modal', modal),
+		closeModal: () => set('modal', null)
+	}))
 ```
 
-### Extending with Selectors and Actions
+- The state type is the one source; selectors and actions derive from it.
+- Closed sets as unions (`ModalId`), never `string`; payloads typed per use, never
+  `Record<string, unknown>`.
+- One store per concern (`ui-store.ts`, `selection-store.ts`); no god store.
+- Stores are created per app instance in SSR apps where state could leak between requests
+  (create inside a provider), never as server-side module singletons holding user data.
 
-```typescript
-const extendedStore = uiStore
-  .extendSelectors(({ get }) => ({
-    isSidebarOpen: () => get('sidebar').open,
-    isDarkMode: () => get('theme').resolved === 'dark',
-  }))
-  .extendActions(({ set }) => ({
-    toggleSidebar: () => set('sidebar', (prev) => ({ open: !prev.open })),
-    setThemeMode: (mode: ThemeMode) => {
-      // resolve mode, persist to localStorage, apply class to documentElement
-    },
-  }))
+## Reading and writing
+
+```ts
+import { useStoreValue, useStoreState } from 'zustand-x'
+
+const open = useStoreValue(uiStore, 'sidebarOpen')            // one field, re-renders on change
+const isInviteOpen = useStoreValue(uiStore, 'isModalOpen', 'invite') // selector with argument
+const [modal, setModal] = useStoreState(uiStore, 'modal')     // value and setter
+
+uiStore.set('toggleSidebar')                                  // action
+uiStore.get('sidebarOpen')                                    // outside React
 ```
 
-## Theme System
+- Read the narrowest field or selector; never subscribe to the whole state.
+- `useTracked` only for deep objects where proxy tracking measurably reduces re-renders.
+- Actions hold the logic; components call actions, not `set` with inline logic.
 
-3-layer approach — no flash of wrong theme on SSR:
+## Theme without a flash
 
-1. **SSR blocking script** in `<head>` — runs before paint, reads localStorage, applies `.dark`/`.light` class + `colorScheme`.
-2. **zustand-x store** takes over after hydration. `setThemeMode` action resolves, persists, applies class.
-3. **System preference listener** — when `mode === 'auto'`, listen to `matchMedia` changes and update `theme.resolved`.
+1. A tiny blocking script in `<head>` reads the saved mode (`localStorage`) and the system
+   preference and sets the `dark` class and `color-scheme` before paint.
+2. The store holds `{ mode: 'auto' | 'light' | 'dark', resolved: 'light' | 'dark' }` after
+   hydration; `setThemeMode` persists, resolves and applies the class.
+3. In `auto`, a `matchMedia('(prefers-color-scheme: dark)')` listener updates `resolved`.
 
-ThemeMode type: `'auto' | 'dark' | 'light'`. Store shape: `{ mode: ThemeMode, resolved: 'dark' | 'light' }`.
+Theme is the one store value persisted to `localStorage` (a per-device preference). Wrap storage
+access in `try`/`catch`; the app must work when storage is blocked.
 
-## v6 API — Reading & Writing State
+## Never in a store
 
-```typescript
-import { useStoreValue, useStoreState, useTracked } from 'zustand-x'
-
-// ── Reading in components ──
-const sidebar = useStoreValue(uiStore, 'sidebar')        // single field
-const isDark = useStoreValue(extendedStore, 'isDarkMode') // selector
-const [sidebar, setSidebar] = useStoreState(uiStore, 'sidebar') // value + setter
-const theme = useTracked(uiStore, 'theme')                // proxy-based minimal re-renders
-
-// ── Reading outside components ──
-uiStore.get('sidebar')
-extendedStore.get('isDarkMode')
-
-// ── Writing ──
-uiStore.set('sidebar', { open: false })
-extendedStore.set('toggleSidebar')
-extendedStore.set('setThemeMode', 'dark')
-
-// ── Batch update with mutative ──
-uiStore.set('state', (draft) => {
-  draft.sidebar.open = false
-  draft.modals.activeModal = null
-  return draft
-})
-```
-
-## What belongs in zustand-x
-
-Sidebar open/closed, active modal + data, active tabs, filter state, theme mode. Any transient UI state.
-
-## What does NOT belong
-
-User session/auth (React Query), database records (React Query), form state (react-hook-form), URL state (router search params).
-
-## Rules
-
-- One store file per concern (`ui-store.ts` for general UI).
-- Use `useStoreValue(store, 'field')` to read in components.
-- Use `useTracked(store, 'field')` only for proxy-based tracking on deeply nested objects.
-- Never put server data in stores.
-- Prefer URL search params over zustand for state that should survive page refresh.
-- Theme is the exception — persisted to localStorage, not URL params.
+- Server data, the session or the user (TanStack Query, the auth library).
+- Form values (react-hook-form).
+- Anything that belongs in the URL.
+- Secrets, tokens or personal data persisted to `localStorage`.
+- Derived values (compute them in a selector).

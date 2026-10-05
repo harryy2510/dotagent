@@ -7,7 +7,15 @@ allowed-tools: Bash(bunx shadcn@latest *)
 
 # shadcn/ui
 
-Components are added as source code via the CLI. Use Bun: `bunx shadcn@latest`. Do not use `npx`, `pnpm dlx`, or `yarn dlx` in DotAgent projects.
+Components are added as source code via the CLI. Use Bun: `bunx shadcn@latest`. Do not use `npx`, `pnpm dlx`, or `yarn dlx`.
+
+- **New projects use Base UI primitives** (`base-nova` preset). Existing projects keep the `base`
+  they have (`radix` or `base`); never mix the two in one project. See
+  [rules/base-vs-radix.md](./rules/base-vs-radix.md).
+- Tokens, Tailwind v4 setup, motion, icons policy and accessibility come from the `ui` skill; this
+  skill covers the components themselves.
+- `lean` applies: an existing component always beats custom markup, and a wrapper that only
+  renames a component is not allowed.
 
 ## Current Project Context
 
@@ -128,3 +136,9 @@ bunx shadcn@latest add button --diff button.tsx          # Diff
 ## Detailed References
 
 - [rules/forms.md](./rules/forms.md) — [rules/composition.md](./rules/composition.md) — [rules/icons.md](./rules/icons.md) — [rules/styling.md](./rules/styling.md) — [rules/base-vs-radix.md](./rules/base-vs-radix.md) — [cli.md](./cli.md) — [customization.md](./customization.md)
+
+## Related skills
+
+- `ui`: tokens, Tailwind v4, dark mode, motion, icons, accessibility checklist.
+- `forms-rhf-zod`: form state and validation behind `Field` components.
+- `lean`: no custom markup where a component exists, no renaming wrappers.

@@ -1,6 +1,6 @@
 import { readFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { type Plugin } from "vite";
+import { type Plugin } from "vite-plus";
 
 const repo = new URL("../", import.meta.url);
 

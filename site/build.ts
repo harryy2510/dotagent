@@ -1,6 +1,6 @@
 import { copyFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { build } from "vite";
+import { build } from "vite-plus";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 const modeIndex = process.argv.indexOf("--mode");

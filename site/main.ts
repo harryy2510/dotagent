@@ -1,28 +1,6 @@
-const rows = document.querySelectorAll<HTMLAnchorElement>(".skill-row");
-const search = document.querySelector<HTMLInputElement>("#skill-search");
-const category = document.querySelector<HTMLSelectElement>("#skill-category");
-const skillStatus = document.querySelector<HTMLElement>("#skill-status");
-
-function filterSkills() {
-  const query = search?.value.trim().toLowerCase() ?? "";
-  let count = 0;
-  for (const row of rows) {
-    row.hidden =
-      (category?.value !== "all" && row.dataset.category !== category?.value) ||
-      !row.textContent?.toLowerCase().includes(query);
-    if (!row.hidden) count += 1;
-  }
-  if (skillStatus) {
-    skillStatus.textContent = count
-      ? `${count} ${count === 1 ? "skill" : "skills"}`
-      : "No matches. Try another search or category.";
-  }
-}
-search?.addEventListener("input", filterSkills);
-category?.addEventListener("change", filterSkills);
-
 const command = document.querySelector<HTMLElement>("#install-command");
 const note = document.querySelector<HTMLElement>("#install-note");
+const projectNote = document.querySelector<HTMLElement>("#project-note");
 const status = document.querySelector<HTMLElement>("#copy-status");
 const copy = document.querySelector<HTMLButtonElement>("#copy-command");
 const scopes = document.querySelectorAll<HTMLInputElement>('input[name="scope"]');
@@ -31,11 +9,10 @@ const baseCommand = command?.textContent?.trim() ?? "";
 function updateCommand() {
   const project =
     document.querySelector<HTMLInputElement>('input[name="scope"]:checked')?.value === "project";
-  if (!command || !note) return;
+  if (!command || !note || !projectNote) return;
   command.textContent = `${baseCommand}${project ? " -s -- --project" : ""}`;
-  note.textContent = project
-    ? "Run from your project directory. The installer asks which agents to configure."
-    : "The installer asks which agents to configure. Existing pack files are preserved.";
+  note.hidden = project;
+  projectNote.hidden = !project;
   if (copy) copy.textContent = "Copy";
   if (status) status.textContent = "";
 }

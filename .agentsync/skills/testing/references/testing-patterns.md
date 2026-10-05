@@ -1,32 +1,55 @@
-# Testing Patterns
+# Testing patterns
 
-Use this when the test shape matters more than the basic `testing` skill already covers.
+Detail behind the `testing` skill.
 
-## Test Shape
+## Test shape
 
-- Prefer one behavior per test and names that describe the user-visible outcome.
-- Keep tests DAMP: repeated setup is acceptable when it makes the behavior obvious.
-- Assert outputs, effects, and boundary calls rather than private implementation.
-- Use fixtures/builders for domain objects only when direct literals become noisy.
-- Avoid broad snapshots unless the snapshot is the contract.
+- One behaviour per test, named by the outcome the caller or user sees.
+- Arrange, act, assert, in that order, with a blank line between.
+- Keep tests readable over clever: repeated setup is fine when it shows the behaviour; extract a
+  helper when the same setup appears three times and means the same thing.
+- Assert outputs, effects and calls at the outside boundary; never private state.
 
-## Boundaries
+## Layers
 
-- Unit tests cover pure logic, parsers, mappers, and query key factories.
-- Integration tests cover server functions, API modules, auth/data boundaries, and provider adapters.
-- Component tests cover conditional rendering, forms, accessibility states, and interactions.
-- E2E tests cover flows that cannot be trusted from isolated tests.
+| Layer       | Covers                                                                     | Runner        |
+| ----------- | -------------------------------------------------------------------------- | ------------- |
+| Unit        | Pure logic, parsers, mappers, query key factories, permission functions    | `vp test`     |
+| Integration | Routes and server functions with a real (test) database or in-memory adapter, auth and tenant boundaries, provider adapters against fakes | `vp test` |
+| Component   | Conditional rendering, forms, accessible states, interactions              | `vp test` + Testing Library |
+| End to end  | Flows that cross pages, emails, OAuth, browsers, real storage              | Playwright    |
 
-## Regression Tests
+Push each behaviour to the lowest layer that can prove it.
 
-- Reproduce the bug first when practical.
-- Keep the regression name tied to the user symptom.
-- Assert the edge case that failed, not just the happy path.
-- Do not weaken or delete existing assertions to fit a fix.
+## Regression tests
 
-## Mocking
+- Reproduce the bug first.
+- Name the test after the user's symptom ("shows the old key as stopping after rotation").
+- Assert the edge case that failed, not only the happy path.
+- Keep it next to the code it protects.
 
-- Mock at stable boundaries: network, filesystem, time, random, external services.
-- Do not mock the code under test.
-- Prefer realistic provider payloads with irrelevant fields omitted.
-- Reset mocks between tests and avoid order-dependent suites.
+## Fakes over mocks
+
+- A fake implements the same contract with real behaviour (an in-memory store, a local HTTP server
+  that answers like the provider). It catches more bugs than a mock and survives refactors.
+- Mocks (`vi.fn`, `vi.mock`) are for the edges you cannot run: time, randomness, a third-party
+  SDK call with no fake.
+- Never mock the module under test or its siblings.
+
+## Time and randomness
+
+- `vi.useFakeTimers()` and `vi.setSystemTime()` for expiry, overlaps and retries; restore after.
+- Seed or inject randomness only through the real API the code already has (an ID generator
+  module mocked at its boundary), never a test-only parameter.
+
+## Database tests
+
+- Run migrations on a fresh test database (or schema) per run; never edit migrations for tests.
+- Seed through the same insert types the app uses.
+- Wrap each test in its own tenant so tests run in parallel without truncating tables.
+- Test row-level security and tenant isolation with negative cases.
+
+## Coverage
+
+- Coverage is a hint, not a goal: `vp test --coverage` to find untested branches in risky code.
+- Never write tests only to raise a number.

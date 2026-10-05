@@ -2,6 +2,10 @@
 
 Complete command reference for Wrangler v4.x+. For quick reference, see the main SKILL.md.
 
+> **Agents print these commands for the user and never run them.** Deploys, secrets, resource
+> creation, D1 execution, tail and auth all touch a Cloudflare account. Always `bunx wrangler`,
+> never npx.
+
 ## Installation & Auth
 
 ```bash

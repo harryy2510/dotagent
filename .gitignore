@@ -19,3 +19,4 @@
 /.grok/
 /.factory/
 node_modules/
+.vite-hooks/_/

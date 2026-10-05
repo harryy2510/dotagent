@@ -1,71 +1,84 @@
 ---
 name: vite
-description: "Vite build tool configuration, plugin API, SSR, environment variables, Environment API, and Vite 8 Rolldown migration. Use when working with Vite projects, vite.config.ts, Vite plugins, env exposure, or building libraries/SSR apps with Vite."
+description: "Use when working on vite.config.ts or Vite behaviour in a Vite+ project: defineConfig from vite-plus, plugins and plugin order, resolve aliases, dev server and proxy, environment variables and what reaches the client, import.meta.glob and asset queries, SSR and the Environment API, library builds with vp pack, Vite 8 with Rolldown and Oxc, and migration from older Vite setups."
 ---
 
-# Vite
+# Vite (inside Vite+)
 
-Based on current Vite 8 docs. Prefer retrieving `https://vite.dev/` for config, env, plugin, and migration details when exact behavior matters.
+Vite 8 runs inside Vite+. The config file is `vite.config.ts` with `defineConfig` from
+`vite-plus`; Vite's own options sit next to the Vite+ keys (`fmt`, `lint`, `test`, `staged`, `run`,
+`pack`) described in `toolchain`. Read `https://vite.dev/` and `https://viteplus.dev/` for exact
+behaviour; this skill is the map.
 
-Vite is a next-generation frontend build tool with fast dev server (native ESM + HMR) and optimized production builds.
+## Hard rules
 
-## Preferences
+- `import { defineConfig } from 'vite-plus'` (Vite+ also re-exports Vite APIs: prefer
+  `vite-plus` imports over `vite` where the lint plugin asks for it).
+- Commands through Vite+: `vp dev`, `vp build`, `vp preview`, `vp pack`; never bare `vite` scripts.
+- ESM and TypeScript only; no CommonJS config.
+- **`VITE_` variables are public:** they are inlined into the client bundle. Never a secret behind
+  that prefix. Server secrets go through the runtime's secret store and the repo's one env module.
+- Agents never read `.env*` files; they name variables and let the user set values.
+- Convert `import.meta.env` strings explicitly (validate with the env module's schema), never
+  `Number(import.meta.env.X)` scattered in code.
 
-- Use TypeScript: prefer `vite.config.ts`
-- Always use ESM, avoid CommonJS
-- Never read or print `.env*` files or actual env values; that rule has no exception. Only edit or create `.env*` files when the user explicitly asks to add or append exact env vars, using user-provided values or clearly fake placeholders without inspecting existing values. Mechanical worktree env-file copies follow the global Git worktree rule and still must not inspect values.
-- Treat `VITE_` variables as public client bundle data; never put secrets behind that prefix.
-- Convert `import.meta.env` values from strings before numeric/boolean use.
-- Bun loads env files into `process.env` before scripts run; account for that when debugging Vite env precedence.
-
-## Core
-
-| Topic | Description | Reference |
-|-------|-------------|-----------|
-| Configuration | `vite.config.ts`, `defineConfig`, conditional configs, `loadEnv` | [core-config](references/core-config.md) |
-| Features | `import.meta.glob`, asset queries (`?raw`, `?url`), `import.meta.env`, HMR API | [core-features](references/core-features.md) |
-| Plugin API | Vite-specific hooks, virtual modules, plugin ordering | [core-plugin-api](references/core-plugin-api.md) |
-
-## Build & SSR
-
-| Topic | Description | Reference |
-|-------|-------------|-----------|
-| Build & SSR | Library mode, SSR middleware mode, `ssrLoadModule`, JavaScript API | [build-and-ssr](references/build-and-ssr.md) |
-
-## Advanced
-
-| Topic | Description | Reference |
-|-------|-------------|-----------|
-| Environment API | Vite 6+ multi-environment support, custom runtimes | [environment-api](references/environment-api.md) |
-| Rolldown Migration | Vite 8 changes: Rolldown bundler, Oxc transformer, config migration | [rolldown-migration](references/rolldown-migration.md) |
-
-## Quick Reference
-
-### CLI Commands
-
-```bash
-vite              # Start dev server
-vite build        # Production build
-vite preview      # Preview production build
-vite build --ssr  # SSR build
-```
-
-### Common Config
+## Config shape
 
 ```ts
-import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
-  plugins: [],
-  resolve: { alias: { '@': '/src' } },
-  server: { port: 3000, proxy: { '/api': 'http://localhost:8080' } },
-  build: { target: 'esnext', outDir: 'dist' },
+	plugins: [react()],
+	resolve: { alias: { '@': new URL('./src', import.meta.url).pathname } },
+	server: { port: 3000, proxy: { '/api': 'http://127.0.0.1:8787' } },
+	build: { target: 'es2022', sourcemap: true },
+	// fmt, lint, test, staged, run, pack: see the toolchain skill
 })
 ```
 
-### Official Plugins
+- Prefer `tsconfig` paths through `resolve.tsconfigPaths` or one alias; never several alias
+  systems.
+- Plugin order matters: framework plugins (`cloudflare`, `tailwindcss`, `tanstackStart`, `react`)
+  follow their docs; use `enforce: 'pre' | 'post'` only for your own plugins.
+- Conditional config with `defineConfig(({ command, mode }) => ({ ... }))` only when dev and build
+  truly differ.
 
-- `@vitejs/plugin-vue` - Vue 3 SFC support
-- `@vitejs/plugin-vue-jsx` - Vue 3 JSX
-- `@vitejs/plugin-react` - React with Oxc/Babel
-- `@vitejs/plugin-react-swc` - React with SWC
+## Topics
+
+| Topic                         | Reference                                         |
+| ----------------------------- | ------------------------------------------------- |
+| Config, `loadEnv`, conditional config | [core-config](references/core-config.md)  |
+| `import.meta.glob`, `?raw`/`?url`, `import.meta.env`, HMR API | [core-features](references/core-features.md) |
+| Plugin API, virtual modules, ordering | [core-plugin-api](references/core-plugin-api.md) |
+| Library mode, SSR, JavaScript API | [build-and-ssr](references/build-and-ssr.md)  |
+| Environment API (multi-runtime, Workers) | [environment-api](references/environment-api.md) |
+| Vite 8: Rolldown, Oxc, config migration | [rolldown-migration](references/rolldown-migration.md) |
+
+## Libraries
+
+Use `vp pack` (tsdown) with a `pack` config instead of Vite library mode for packages: ESM output,
+`.d.ts`, `deps.neverBundle` for dependencies, `publint` and `attw` set to `error`, dedicated
+`exports` subpaths per entry (no catch-all barrel).
+
+## Environment variables in Vite
+
+- Only `VITE_`-prefixed values reach `import.meta.env` in client code.
+- Validate them once in the env module (for example `@t3-oss/env-core` with Zod) and import the
+  typed object everywhere else.
+- `mode` selects `.env.[mode]` files; the user owns those files.
+- Bun loads `.env` files into `process.env` for scripts; when debugging precedence, ask the user,
+  do not read the files.
+
+## Workers and SSR
+
+- Cloudflare: `@cloudflare/vite-plugin` runs the SSR environment in workerd during `vp dev`; see
+  `tanstack-start-cloudflare` and `cloudflare`.
+- SSR-only modules never import from client modules that touch `window`; client-only code runs in
+  effects or client entry points.
+
+## Migrating
+
+- From Vite 5/6/7: read `references/rolldown-migration.md` (Rolldown replaces Rollup and esbuild;
+  Oxc replaces esbuild transforms; some `build.rollupOptions` move).
+- From plain Vite to Vite+: `toolchain` → "Migrating an existing repo to Vite+".

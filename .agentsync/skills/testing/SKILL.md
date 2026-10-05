@@ -1,191 +1,156 @@
 ---
 name: testing
-description: "Use when writing, reviewing, or running unit tests, integration tests, or E2E tests. Covers Vitest + Testing Library for unit/integration, Playwright for E2E."
+description: "Use when writing, reviewing, or running tests: unit and integration with vp test (Vitest inside Vite+, imports from vite-plus/test), component tests with Testing Library, end-to-end and browser flows with Playwright. Covers what to test, test-first loops for bugs, mocking boundaries, fakes, fixtures, and the rules that keep tests from bending the design."
 ---
 
 # Testing
 
-Vitest for unit/integration. Playwright for E2E. Testing Library for component tests.
+- **Unit and integration:** `vp test` (Vitest bundled in Vite+). Import from `vite-plus/test`.
+- **Components:** Testing Library on top of `vp test` (jsdom or browser mode).
+- **End to end:** Playwright.
 
-## When to Apply
+Read `lean` first: tests serve the design, never the other way round.
 
-- Writing new utility functions, lib helpers, or pure logic
-- Adding server functions or API modules
-- Building complex UI components with conditional logic
-- Reviewing test quality or coverage
-- Setting up test infrastructure
+## When to test
 
-## Test-First Loop
+**Always:**
 
-For regressions, fragile logic, auth/data boundaries, or behavior with real user impact, prefer RED-GREEN-REFACTOR:
+- Logic with branches: parsers, mappers, calculations, permission checks, money, dates.
+- Every trust boundary: a request handler or server function, with valid input, invalid input,
+  unauthenticated, forbidden, another tenant's resource.
+- Every bug fix: a test that fails before the fix.
+- Security-relevant behaviour: refusal paths, redaction, erasure, rate limits.
 
-1. Write or adjust a test that fails for the current bug/requirement.
-2. Run the focused test and confirm it fails for the expected reason.
-3. Implement the smallest correct change.
-4. Run the focused test until it passes, then refactor with tests green.
-5. Broaden to impacted tests/checks before completion.
+**When it is complex:** custom hooks with state, multi-step forms, conditional rendering that
+changes what users can do, query key factories with logic.
 
-If test-first is impractical, state why and add the closest useful coverage before shipping.
+**Never:**
 
-## File Conventions
+- Pass-through components, re-exports, generated files.
+- The framework or a library (that Zod parses, that dates add, that React renders).
+- Styling (use visual checks in the browser suite instead).
+- Thin hooks that call one function with no logic.
 
-- Test files colocated next to source: `foo.ts` -> `foo.test.ts`
-- Component tests: `button.test.tsx` next to `button.tsx`
-- E2E tests: `e2e/` directory at project root
-- File extension: `.test.ts` or `.test.tsx` -- never `.spec.*`
-- One describe block per exported function/component
+## The loop for bugs and risky changes
 
-## What to Test
+1. Write or adjust a test that fails for the bug or the requirement.
+2. Run it alone and confirm it fails for the expected reason.
+3. Make the smallest correct change.
+4. Run it until it passes; refactor with it green.
+5. Run the impacted tests and `bun run check` before saying done.
 
-### Always Test (high value)
-- Pure utility functions (`libs/`, `api/*/lib/`)
-- Zod schemas -- validate correct inputs pass + invalid inputs fail with right errors
-- Data transformations -- mappers, formatters, parsers
-- Query key factories -- verify key structure
-- Complex conditional logic in components
+If test-first is impractical, say why and add the closest useful coverage before shipping.
 
-### Test When Complex
-- Server functions with branching logic
-- Custom hooks with non-trivial state
-- Form validation edge cases
-- Multi-step flows
+## Files
 
-### Never Test (waste of tokens)
-- Simple pass-through components (just renders children)
-- Direct re-exports
-- Auto-generated files (database.types.ts, routeTree.gen.ts)
-- Styling/layout (visual regression is better)
-- React Query hooks that just wrap a server function with no transform
+- Colocated: `foo.ts` and `foo.test.ts`; `button.tsx` and `button.test.tsx`.
+- End to end in `e2e/` (or the repo's existing folder), files `*.e2e.ts`.
+- `.test.ts(x)` only; never `.spec.*` in new code unless the repo already uses it.
+- One `describe` per exported unit; `it` names say what the user or caller gets.
 
-## References
+## Unit tests
 
-Use `references/testing-patterns.md` when the test shape, mocking boundary, or regression strategy needs more detail than this quick path.
-
-## Vitest Patterns
-
-### Basic Unit Test
 ```ts
-import { describe, expect, it } from 'vitest'
-
+import { describe, expect, it } from 'vite-plus/test'
 import { formatPrice } from './format-price'
 
 describe('formatPrice', () => {
-	it('formats cents to dollars', () => {
+	it('formats cents as dollars', () => {
 		expect(formatPrice(1500)).toBe('$15.00')
 	})
 
-	it('handles zero', () => {
-		expect(formatPrice(0)).toBe('$0.00')
-	})
-
-	it('returns null for negative values', () => {
+	it('returns null for negative amounts', () => {
 		expect(formatPrice(-100)).toBeNull()
 	})
 })
 ```
 
-### Testing Zod Schemas
+## Boundaries and mocks
+
+- Test through the public entry point a real caller uses: the route, the server function, the
+  exported function, the page.
+- Mock only the outside world: network (with a fake server or `vi.fn` on the client's transport
+  module), time (`vi.useFakeTimers`, `vi.setSystemTime`), randomness, external services, payment
+  providers.
+- Never mock our own modules to reach a line of code; never add parameters, exports, flags or
+  wrappers only for tests (see `lean` section 10).
+- Prefer in-memory fakes with real behaviour (a fake provider server, an in-memory database
+  adapter) over deep `vi.mock` chains.
+- `vi.restoreAllMocks()` in `afterEach` when spies are used; tests never depend on order.
+
 ```ts
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
+import { app } from '../src/app'
 
-import { createContactSchema } from './schemas'
+afterEach(() => vi.useRealTimers())
 
-describe('createContactSchema', () => {
-	it('accepts valid input', () => {
-		const result = createContactSchema.safeParse({
-			email: 'test@example.com',
-			firstName: 'John',
-			lastName: 'Doe',
-		})
-		expect(result.success).toBe(true)
+describe('POST /keys/:id/rotate', () => {
+	it('refuses a member of another organization', async () => {
+		const res = await app.request('/keys/key_123/rotate', { method: 'POST', headers: otherOrgSession })
+		expect(res.status).toBe(404)
 	})
 
-	it('rejects invalid email', () => {
-		const result = createContactSchema.safeParse({
-			email: 'not-an-email',
-			firstName: 'John',
-			lastName: 'Doe',
-		})
-		expect(result.success).toBe(false)
+	it('stops the old key after the overlap', async () => {
+		vi.useFakeTimers()
+		// rotate, advance past the overlap, call with the old key, expect 401
 	})
 })
 ```
 
-### Testing with Mocks
-```ts
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+## Data
 
-import { processWebhook } from './webhook-handler'
+- Minimal test data: only the fields the assertion needs.
+- Test data builders derive from the real types (`z.input<typeof schema>`, the table's insert
+  type); never hand-written shapes that drift.
+- Each test gets its own records (its own organization or user) so tests run in parallel.
+- Never real credentials, real customer data or production endpoints.
 
-vi.mock('@/libs/supabase/server', () => ({
-	getSupabaseServerClient: vi.fn(() => ({
-		from: vi.fn(() => ({
-			select: vi.fn(() => ({
-				eq: vi.fn(() => ({ data: [{ id: '1' }], error: null })),
-			})),
-		})),
-	})),
-}))
-
-describe('processWebhook', () => {
-	beforeEach(() => {
-		vi.clearAllMocks()
-	})
-
-	it('processes valid payload', async () => {
-		const result = await processWebhook({ event: 'created', data: {} })
-		expect(result).toBeDefined()
-	})
-})
-```
-
-## Rules
-
-- Import `describe`, `expect`, `it`, `vi` from `vitest` -- never from `jest` or globals
-- Use `vi.fn()` and `vi.mock()` -- never `jest.fn()`
-- Use `beforeEach` with `vi.clearAllMocks()` when using mocks
-- Test behavior, not implementation -- assert outputs and side effects, not internal state
-- Each `it()` block tests ONE thing -- name describes expected behavior
-- Use `toBeNull()` not `toBe(null)`. Use `toBeDefined()` not `not.toBe(undefined)`
-- Null over undefined in test expectations -- matches production rule
-- No `test()` -- always `it()` inside `describe()`
-- No snapshot tests -- they rot fast with AI-generated code
-- Keep test data minimal -- only fields relevant to assertion
-- Run `bun test` before considering work complete
-
-## Testing Library (Component Tests)
+## Component tests (Testing Library)
 
 ```tsx
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
-
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { SearchInput } from './search-input'
 
 describe('SearchInput', () => {
-	it('calls onSearch when user types', async () => {
+	it('calls onSearch with what the user typed', async () => {
 		const user = userEvent.setup()
 		const onSearch = vi.fn()
-
 		render(<SearchInput onSearch={onSearch} />)
-
 		await user.type(screen.getByRole('searchbox'), 'hello')
-		expect(onSearch).toHaveBeenCalledWith('hello')
+		expect(onSearch).toHaveBeenLastCalledWith('hello')
 	})
 })
 ```
 
-### Rules
-- Query by role first (`getByRole`), then by label (`getByLabelText`), then by text (`getByText`) -- never by test ID unless no semantic alternative
-- Use `userEvent` (not `fireEvent`) for user interactions
-- `screen` for queries -- never destructure from `render()`
-- Wrap state updates in `act()` only if Testing Library doesn't handle it automatically
-- No `waitFor` with arbitrary timeouts -- use `findBy*` queries instead
+- Query by role, then label, then text; test IDs only when nothing semantic exists.
+- `userEvent`, not `fireEvent`; `screen`, not destructured queries.
+- `findBy*` for async UI; never `waitFor` with arbitrary timeouts.
+- Assert accessible names and states (`aria-pressed`, `aria-expanded`), which also tests
+  accessibility.
 
-## Playwright (E2E)
+## End to end (Playwright)
 
-E2E tests live in `e2e/` at project root. Page Object Model -- one class per page.
-- Use semantic locators (`getByRole`, `getByLabel`) -- never CSS selectors
-- `await expect(locator).toBeVisible()` -- never raw `waitForSelector`
-- No `page.waitForTimeout()` -- use `expect` with auto-retry or `waitForURL`
-- Test user flows, not implementation details
+- Semantic locators (`getByRole`, `getByLabel`); never CSS selectors or XPath for user flows.
+- Web-first assertions (`await expect(locator).toBeVisible()`); never `waitForTimeout`.
+- Sign in once per test identity and reuse saved storage state; set data up through the API or
+  database, not the UI, except in the test of that UI.
+- One organization or account per test so tests run fully parallel.
+- Fakes for third parties (OAuth providers, payment, email via a local catcher such as Mailpit).
+- Traces on failure (`trace: 'retain-on-failure'`); accessibility scan with `@axe-core/playwright`
+  on key pages.
+- Agents run Playwright only where the repo and user allow browsers, against local or test
+  environments, never production.
+
+## Rules
+
+- `it` inside `describe`; one behaviour per `it`.
+- `toBeNull()`, `toBeUndefined()`, `toHaveBeenLastCalledWith()`; specific matchers over generic
+  equality.
+- No snapshot tests unless the snapshot is the contract (a generated file format, an email
+  body).
+- Never weaken or delete an assertion to make a change pass.
+- Flaky test: find the cause (time, order, shared state, network); never add retries or sleeps.
+
+See `references/testing-patterns.md` for test shape, fixtures, regression tests and coverage.

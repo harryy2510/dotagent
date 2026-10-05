@@ -1,0 +1,2 @@
+#!/bin/sh
+cd site && bun --no-env-file run check

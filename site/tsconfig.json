@@ -11,5 +11,5 @@
     "skipLibCheck": true,
     "moduleDetection": "force"
   },
-  "include": ["*.ts"]
+  "include": ["*.ts", "tests/*.ts"]
 }

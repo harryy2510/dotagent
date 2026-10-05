@@ -1,9 +1,9 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vite-plus/test";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { publicFiles } from "../site/site-content";
+import { publicFiles } from "../site-content";
 
-const root = fileURLToPath(new URL("../", import.meta.url));
+const root = fileURLToPath(new URL("../../", import.meta.url));
 const html = readFileSync(`${root}site/index.html`, "utf8");
 const readme = readFileSync(`${root}README.md`, "utf8");
 const skills = readdirSync(`${root}.agentsync/skills`).filter((name) =>
@@ -12,12 +12,17 @@ const skills = readdirSync(`${root}.agentsync/skills`).filter((name) =>
 
 describe("site content contracts", () => {
   test("the site and README list every shipped skill exactly once", () => {
-    expect(skills).toHaveLength(16);
+    expect(skills.length).toBeGreaterThan(0);
+    const rows = [
+      ...html.matchAll(/class="skill-row"\s+href="\.\/pack\/skills\/([^/"]+)\/SKILL\.md"/g),
+    ].map((match) => match[1]);
+    expect([...rows].sort()).toEqual([...skills].sort());
     for (const name of skills) {
-      expect(html.split(`<code>${name}</code>`)).toHaveLength(2);
+      expect(html).toContain(`<code>${name}</code`);
       expect(readme).toContain(`.agentsync/skills/${name}/SKILL.md`);
     }
     expect(html.match(/class="skill-row"/g)).toHaveLength(skills.length);
+    expect(html).not.toContain('id="skill-search"');
   });
 
   test("all internal navigation targets exist and IDs are unique", () => {
@@ -73,7 +78,7 @@ describe("site content contracts", () => {
   test("plain HTML contains every skill and the normal install command", () => {
     expect(html).toContain("curl -fsSL https://dotagent.dev/install | sh");
     expect(html).not.toContain("--source");
-    expect(html.match(/class="skill-row"/g)).toHaveLength(16);
+    expect(html.match(/class="skill-row"/g)).toHaveLength(skills.length);
     expect(html).not.toMatch(/class="skill-row"[^>]*\bhidden\b/);
     expect(html).not.toContain("<!--skill-rows-->");
     expect(html).not.toContain("<!--install-command-->");
@@ -81,9 +86,10 @@ describe("site content contracts", () => {
   });
 
   test("all brand occurrences use the same asset", () => {
+    // The favicon is the only image asset; the header wordmark is the CSS dot.
     const icons = [...html.matchAll(/(?:src|href)="([^"]*mark[^"]*)"/g)];
-    expect(icons).toHaveLength(3);
-    expect(new Set(icons.map((match) => match[1]))).toEqual(new Set(["./mark.png"]));
+    expect(icons.map((match) => match[1])).toEqual(["./mark.png"]);
+    expect(html.match(/class="brand-dot"/g)).toHaveLength(1);
     expect(html).not.toContain("brand-orbit");
     expect(html).not.toContain("orbit-art");
     expect(html).not.toMatch(/github\.com\/harryy2510\/dotagent\/(?:tree|blob)\/main/);

@@ -3,327 +3,219 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#faf9f6" />
+    <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#131514" media="(prefers-color-scheme: dark)" />
     <meta
       name="description"
-      content="DotAgent is a collection of engineering skills and shared instructions for coding agents. Markdown files, installed through AgentSync."
+      content="Rules and skills for coding agents. One rules file and 21 skills for Claude Code, Codex, Cursor and other agents, installed through AgentSync."
     />
-    <meta property="og:title" content="DotAgent / Skills for coding agents" />
+    <meta property="og:title" content="DotAgent / Rules and skills for coding agents" />
     <meta
       property="og:description"
-      content="Engineering skills and shared instructions, installed through AgentSync."
+      content="One rules file and 21 skills for coding agents, installed through AgentSync."
     />
     <meta property="og:type" content="website" />
     <link rel="icon" href="./mark.png" />
     <link rel="stylesheet" href="./style.css" />
-    <title>DotAgent / Skills for coding agents</title>
+    <title>DotAgent / Rules and skills for coding agents</title>
   </head>
   <body id="top">
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="page">
       <header class="header">
         <a class="brand" href="#top" aria-label="DotAgent home"
-          ><img src="./mark.png" width="32" height="32" alt="" /><span>dotagent</span></a
+          ><span class="brand-dot" aria-hidden="true"></span>agent</a
         >
         <nav aria-label="Main navigation">
-          <a href="#skills">Skills</a><a href="#install">Install</a
-          ><a href="https://github.com/harryy2510/dotagent"
-            >GitHub <span aria-hidden="true">↗</span></a
-          >
+          <a href="#skills">Skills</a><a href="https://github.com/harryy2510/dotagent">GitHub</a>
         </nav>
       </header>
 
       <main id="main" tabindex="-1">
         <section class="intro" aria-labelledby="intro-title">
-          <p class="label">.agentsync / dotagent</p>
-          <h1 id="intro-title">A working setup<br />for coding agents.</h1>
-          <p class="intro-copy">
-            The rules and engineering skills I use across projects.<br class="wide-only" />
-            Mostly TypeScript, React, Supabase, and Cloudflare.
+          <h1 id="intro-title">Rules and skills for coding agents.</h1>
+          <p class="lead">
+            One <a href="./pack/memory/fragments/dotagent.md" data-source>rules file</a> and 21
+            skills for Claude Code, Codex, Cursor and other agents. TypeScript, React, Hono,
+            Drizzle, Postgres, Supabase, Cloudflare. Plain Markdown, synced to each agent by
+            <a href="https://github.com/spxrogers/agentsync">AgentSync</a>.
           </p>
-          <p class="byline">
-            Maintained by <a href="https://github.com/harryy2510">Hariom Sharma</a>
-          </p>
-        </section>
 
-        <section class="install" id="install" aria-labelledby="install-title">
-          <div class="install-heading">
-            <h2 id="install-title">Install</h2>
-            <span>macOS / Linux</span>
-          </div>
-          <div class="command-panel">
-            <div class="command-options">
-              <fieldset>
-                <legend class="sr-only">Installation scope</legend>
-                <label><input type="radio" name="scope" value="user" checked />My machine</label
-                ><label><input type="radio" name="scope" value="project" />This project</label>
-              </fieldset>
+          <div class="install" id="install">
+            <fieldset class="scope">
+              <legend class="sr-only">Installation scope</legend>
+              <label><input type="radio" name="scope" value="user" checked />My machine</label
+              ><label><input type="radio" name="scope" value="project" />This project</label>
+            </fieldset>
+            <div class="command">
+              <pre><code><span class="prompt" aria-hidden="true">$ </span><span id="install-command">curl -fsSL https://dotagent.dev/install | sh</span></code></pre>
               <button id="copy-command" type="button">Copy</button>
             </div>
-            <pre><code id="install-command">curl -fsSL https://dotagent.dev/install | sh</code></pre>
-          </div>
-          <p class="install-note" id="install-note">
-            The installer asks which agents to configure. Existing pack files are preserved.
-          </p>
-          <p class="sr-only" id="copy-status" role="status"></p>
-          <div class="install-links">
-            <a href="./install" data-source>Read install.sh</a
-            ><a href="#usage">Options &amp; updates</a><a href="./readme.md" data-source>README</a>
-          </div>
-        </section>
-
-        <section class="about" aria-labelledby="about-title">
-          <h2 id="about-title">What gets installed</h2>
-          <div>
-            <p>
-              A <a href="./pack/memory/fragments/dotagent.md" data-source>memory fragment</a> sets
-              the rules and tells the agent which skill to read. The detailed instructions live in
-              separate Markdown files.
+            <p class="note" id="install-note">
+              Shows every file change before applying. Existing files are kept unless you pass
+              <code>--force</code>.
             </p>
-            <p>
-              <a href="https://github.com/spxrogers/agentsync">AgentSync</a> is the required
-              dependency. It handles the agent configuration; the installer sets it up if needed.
+            <p class="note" id="project-note" hidden>
+              Run it in the project folder. Only this repository gets the pack.
             </p>
+            <p class="note links">
+              <a href="./install" data-source>Read install.sh</a
+              ><a href="./readme.md" data-source>README</a>
+            </p>
+            <p class="sr-only" id="copy-status" role="status"></p>
           </div>
         </section>
 
         <section class="skills" id="skills" aria-labelledby="skills-title">
-          <div class="section-heading">
-            <h2 id="skills-title">Skills <span class="count">16</span></h2>
-            <p>Read the files before you install.</p>
+          <h2 id="skills-title">Skills</h2>
+          <p class="section-copy">
+            <code>lean</code> and <code>compliance</code> are always on. The rest load when the task
+            matches. Click one to read it.
+          </p>
+          <div class="skill-group">
+            <h3 id="group-always">Always on</h3>
+            <div class="skill-list">
+              <a class="skill-row" href="./pack/skills/lean/SKILL.md" data-source
+                ><code>lean</code
+                ><span>One source, parse once, libraries first, delete bloat.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/compliance/SKILL.md" data-source
+                ><code>compliance</code><span>Privacy, security, honest claims.</span></a
+              >
+            </div>
           </div>
-          <div class="filters">
-            <label class="search"
-              ><span class="sr-only">Search skills</span
-              ><input
-                id="skill-search"
-                type="search"
-                placeholder="Find a skill…"
-                autocomplete="off"
-            /></label>
-            <label
-              ><span class="sr-only">Skill category</span
-              ><select id="skill-category">
-                <option value="all">All categories</option>
-                <option value="foundation">Foundation</option>
-                <option value="interface">Interface</option>
-                <option value="platform">Platform &amp; data</option>
-                <option value="quality">Quality</option>
-              </select></label
-            >
+          <div class="skill-group">
+            <h3 id="group-foundation">Foundation</h3>
+            <div class="skill-list">
+              <a class="skill-row" href="./pack/skills/toolchain/SKILL.md" data-source
+                ><code>toolchain</code
+                ><span>Bun and Vite+: format, lint, check, test, hooks.</span></a
+              >
+              <a
+                class="skill-row"
+                href="./pack/skills/source-driven-development/SKILL.md"
+                data-source
+                ><code>source-driven-development</code
+                ><span>Installed-version sources over memory.</span></a
+              >
+              <a
+                class="skill-row"
+                href="./pack/skills/api-and-interface-design/SKILL.md"
+                data-source
+                ><code>api-and-interface-design</code
+                ><span>Contracts, one error shape, versioning.</span></a
+              >
+            </div>
           </div>
-          <div class="skill-list">
-            <a
-              class="skill-row"
-              data-category="foundation"
-              href="./pack/skills/toolchain/SKILL.md"
-              data-source
-              ><code>toolchain</code>
-              <p>Bun, TypeScript, Oxc, and Git hooks.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="foundation"
-              href="./pack/skills/source-driven-development/SKILL.md"
-              data-source
-              ><code>source-driven-development</code>
-              <p>Check current docs before choosing an API.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="foundation"
-              href="./pack/skills/api-and-interface-design/SKILL.md"
-              data-source
-              ><code>api-and-interface-design</code>
-              <p>API contracts and module boundaries.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="interface"
-              href="./pack/skills/ui/SKILL.md"
-              data-source
-              ><code>ui</code>
-              <p>Tailwind, design tokens, and accessibility.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="interface"
-              href="./pack/skills/shadcn/SKILL.md"
-              data-source
-              ><code>shadcn</code>
-              <p>Find and compose shadcn/ui components.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="interface"
-              href="./pack/skills/forms-rhf-zod/SKILL.md"
-              data-source
-              ><code>forms-rhf-zod</code>
-              <p>React Hook Form and Zod validation.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="interface"
-              href="./pack/skills/react-query-mutative/SKILL.md"
-              data-source
-              ><code>react-query-mutative</code>
-              <p>Query keys, mutations, and optimistic updates.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="interface"
-              href="./pack/skills/zustand-x-ui-state/SKILL.md"
-              data-source
-              ><code>zustand-x-ui-state</code>
-              <p>Client state for filters, dialogs, and themes.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="platform"
-              href="./pack/skills/tanstack-start-cloudflare/SKILL.md"
-              data-source
-              ><code>tanstack-start-cloudflare</code>
-              <p>Routes and server functions on Cloudflare.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="platform"
-              href="./pack/skills/supabase-auth-data/SKILL.md"
-              data-source
-              ><code>supabase-auth-data</code>
-              <p>Auth, clients, migrations, and generated types.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="platform"
-              href="./pack/skills/supabase-postgres-best-practices/SKILL.md"
-              data-source
-              ><code>supabase-postgres-best-practices</code>
-              <p>Indexes, query plans, pooling, and RLS.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="platform"
-              href="./pack/skills/cloudflare/SKILL.md"
-              data-source
-              ><code>cloudflare</code>
-              <p>Workers and Wrangler configuration.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="platform"
-              href="./pack/skills/vite/SKILL.md"
-              data-source
-              ><code>vite</code>
-              <p>Build configuration and plugins.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="quality"
-              href="./pack/skills/testing/SKILL.md"
-              data-source
-              ><code>testing</code>
-              <p>Vitest, Testing Library, and Playwright.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="quality"
-              href="./pack/skills/debugging/SKILL.md"
-              data-source
-              ><code>debugging</code>
-              <p>Reproduce a bug and verify the fix.</p>
-              <span aria-hidden="true">↗</span></a
-            >
-            <a
-              class="skill-row"
-              data-category="quality"
-              href="./pack/skills/security-and-hardening/SKILL.md"
-              data-source
-              ><code>security-and-hardening</code>
-              <p>Auth, secrets, and trust boundaries.</p>
-              <span aria-hidden="true">↗</span></a
-            >
+          <div class="skill-group">
+            <h3 id="group-interface">Interface</h3>
+            <div class="skill-list">
+              <a class="skill-row" href="./pack/skills/ui/SKILL.md" data-source
+                ><code>ui</code><span>Tailwind v4, tokens, motion, accessibility.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/shadcn/SKILL.md" data-source
+                ><code>shadcn</code><span>Find, add and compose components.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/forms-rhf-zod/SKILL.md" data-source
+                ><code>forms-rhf-zod</code><span>React Hook Form and Zod, one schema.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/react-query-mutative/SKILL.md" data-source
+                ><code>react-query-mutative</code
+                ><span>Query options, mutations, optimistic updates.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/zustand-x-ui-state/SKILL.md" data-source
+                ><code>zustand-x-ui-state</code><span>Client UI state and stores.</span></a
+              >
+            </div>
           </div>
-          <p id="skill-status" class="result-count" role="status">16 skills</p>
+          <div class="skill-group">
+            <h3 id="group-platform">Platform and data</h3>
+            <div class="skill-list">
+              <a class="skill-row" href="./pack/skills/hono/SKILL.md" data-source
+                ><code>hono</code><span>APIs on Bun, Node and Workers.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/drizzle/SKILL.md" data-source
+                ><code>drizzle</code><span>Schemas, derived types, migrations.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/postgres/SKILL.md" data-source
+                ><code>postgres</code><span>Indexes, plans, RLS, locking.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/better-auth/SKILL.md" data-source
+                ><code>better-auth</code><span>Sessions, passkeys, 2FA, SSO, SCIM.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/supabase-auth-data/SKILL.md" data-source
+                ><code>supabase-auth-data</code><span>Clients, auth, RLS, types.</span></a
+              >
+              <a
+                class="skill-row"
+                href="./pack/skills/tanstack-start-cloudflare/SKILL.md"
+                data-source
+                ><code>tanstack-start-cloudflare</code
+                ><span>Routes, loaders, server functions.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/cloudflare/SKILL.md" data-source
+                ><code>cloudflare</code><span>Workers, bindings, wrangler.jsonc.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/vite/SKILL.md" data-source
+                ><code>vite</code><span>Config, env, SSR inside Vite+.</span></a
+              >
+            </div>
+          </div>
+          <div class="skill-group">
+            <h3 id="group-quality">Quality</h3>
+            <div class="skill-list">
+              <a class="skill-row" href="./pack/skills/testing/SKILL.md" data-source
+                ><code>testing</code><span>vp test, Testing Library, Playwright.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/debugging/SKILL.md" data-source
+                ><code>debugging</code><span>Reproduce, fix the root once, verify.</span></a
+              >
+              <a class="skill-row" href="./pack/skills/security-audit/SKILL.md" data-source
+                ><code>security-audit</code><span>Source-first vulnerability review.</span></a
+              >
+            </div>
+          </div>
           <noscript
-            ><p>Search needs JavaScript. You can still open every skill file above.</p></noscript
+            ><p class="section-copy">
+              Copy and the file viewer need JavaScript. Every link still opens its file.
+            </p></noscript
           >
         </section>
 
-        <section class="usage" id="usage" aria-labelledby="usage-title">
-          <h2 id="usage-title">A few useful options</h2>
-          <div class="usage-content">
-            <p>
-              The installer asks which agents to use and shows the file changes before applying
-              them. Existing pack files stay as they are unless you pass <code>--force</code>.
-            </p>
-            <dl class="options">
-              <div>
-                <dt><code>--agents claude,codex</code></dt>
-                <dd>Add or enable specific agents.</dd>
-              </div>
-              <div>
-                <dt><code>--yes</code></dt>
-                <dd>Skip prompts. A fresh install needs <code>--agents</code>.</dd>
-              </div>
-              <div>
-                <dt><code>--no-apply</code></dt>
-                <dd>Install the source files without changing native config.</dd>
-              </div>
-              <div>
-                <dt><code>--force</code></dt>
-                <dd>Update the pack, backing up replaced files first.</dd>
-              </div>
-            </dl>
-            <p class="usage-footnote">
-              Apply includes all enabled agents and existing AgentSync components, not only
-              DotAgent. <a href="./install" data-source>See the full installer</a> for scope,
-              download, and preview options.
-            </p>
-          </div>
-        </section>
-
-        <section class="credits" id="credits" aria-labelledby="credits-title">
-          <h2 id="credits-title">Credits</h2>
-          <p>
-            <a href="https://github.com/spxrogers/agentsync">AgentSync</a> by
-            <a href="https://github.com/spxrogers">@spxrogers</a> and contributors does the sync
-            work. Some skills draw on
-            <a href="https://github.com/addyosmani/agent-skills">Addy Osmani’s agent skills</a> and
-            <a href="https://github.com/supabase/agent-skills">Supabase’s Postgres guidance</a>. The
-            optional terminal prompts use <a href="https://github.com/charmbracelet/gum">Gum</a>.
-            <a href="./readme.md" data-source>Full credits in the README.</a>
-          </p>
+        <section class="options" id="options" aria-labelledby="options-title">
+          <h2 id="options-title">Options</h2>
+          <dl>
+            <dt><code>--agents claude,codex</code></dt>
+            <dd>Choose agents.</dd>
+            <dt><code>--project</code></dt>
+            <dd>Install into <code>./.agentsync</code> instead of <code>~/.agentsync</code>.</dd>
+            <dt><code>--yes</code></dt>
+            <dd>No prompts. A first install also needs <code>--agents</code>.</dd>
+            <dt><code>--no-apply</code></dt>
+            <dd>Copy the pack, leave agent config alone.</dd>
+            <dt><code>--force</code></dt>
+            <dd>Update the pack. Replaced files are backed up.</dd>
+          </dl>
+          <p class="section-copy">All flags: <a href="./readme.md" data-source>README</a>.</p>
         </section>
       </main>
 
       <footer class="footer">
-        <a class="brand" href="#top"
-          ><img src="./mark.png" width="24" height="24" alt="" /><span>dotagent</span></a
-        ><a href="https://github.com/harryy2510/dotagent"
-          >Source on GitHub <span aria-hidden="true">↗</span></a
-        >
+        <p>
+          By <a href="https://github.com/harryy2510">Hariom Sharma</a>. Sync by
+          <a href="https://github.com/spxrogers/agentsync">AgentSync</a>. Some skills draw on
+          <a href="https://github.com/addyosmani/agent-skills">Addy Osmani’s agent skills</a> and
+          <a href="https://github.com/supabase/agent-skills">Supabase’s Postgres guidance</a>;
+          prompts use <a href="https://github.com/charmbracelet/gum">Gum</a>.
+        </p>
+        <a href="https://github.com/harryy2510/dotagent">Source</a>
       </footer>
     </div>
 
     <dialog id="source-dialog" aria-labelledby="source-title">
       <div class="source-heading">
         <h2 id="source-title">Source file</h2>
-        <div>
+        <div class="source-actions">
           <a id="source-link" href="./readme.md">Open file</a
           ><button type="button" id="close-source" autofocus>Close <kbd>Esc</kbd></button>
         </div>

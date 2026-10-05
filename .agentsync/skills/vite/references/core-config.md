@@ -2,6 +2,9 @@
 name: vite-config
 description: Vite configuration patterns using vite.config.ts
 ---
+> In Vite+ projects, import `defineConfig` and other Vite APIs from `vite-plus`; examples below use
+> plain `vite` imports as the Vite docs do.
+
 
 # Vite Configuration
 

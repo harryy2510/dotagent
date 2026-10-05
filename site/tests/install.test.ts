@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "vite-plus/test";
 import {
   chmodSync,
   existsSync,
@@ -13,10 +13,13 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawn, spawnSync } from "node:child_process";
+import { once } from "node:events";
+import { createHash } from "node:crypto";
 
-const installer = resolve(import.meta.dir, "../install.sh");
-const bun = process.execPath;
+const installer = resolve(import.meta.dirname, "../../install.sh");
+// The mock CLIs are Bun scripts and the tests run under Node, so resolve the bun binary.
+const bun = execFileSync("/bin/sh", ["-c", "command -v bun"], { encoding: "utf8" }).trim();
 const roots: string[] = [];
 
 // A real child-process boundary, but no network, package manager, native agent,
@@ -125,17 +128,16 @@ function fixture(withAgentSync = true) {
           .map((line) => JSON.parse(line))
       : [];
   const run = (args: string[], extraEnv: Record<string, string> = {}) => {
-    const result = Bun.spawnSync(["/bin/sh", installer, "--source", source, ...args], {
+    const result = spawnSync("/bin/sh", [installer, "--source", source, ...args], {
       cwd: project,
       env: { ...env, ...extraEnv },
-      stdin: "ignore",
-      stdout: "pipe",
-      stderr: "pipe",
+      stdio: ["ignore", "pipe", "pipe"],
+      encoding: "utf8",
       timeout: 15_000,
     });
     return {
-      status: result.exitCode,
-      output: result.stdout.toString() + result.stderr.toString(),
+      status: result.status,
+      output: result.stdout + result.stderr,
     };
   };
   return { root, home, project, source, bin, env, run, calls };
@@ -146,39 +148,42 @@ afterEach(() => {
 });
 
 describe("installer dependencies and process boundaries", () => {
-  test("no controlling terminal fails immediately unless --yes or --dry-run", () => {
+  test("no controlling terminal fails immediately unless --yes or --dry-run", async () => {
     const f = fixture();
-    const result = spawnSync("/bin/sh", [installer, "--source", f.source, "--agents", "claude"], {
+    // Only async spawn can detach into a new session without a controlling terminal.
+    const child = spawn("/bin/sh", [installer, "--source", f.source, "--agents", "claude"], {
       cwd: f.project,
       env: f.env,
       detached: true,
       stdio: ["ignore", "pipe", "pipe"],
       timeout: 5_000,
     });
-    expect(result.status).not.toBe(0);
-    expect(result.stderr.toString()).toContain("No interactive terminal");
+    let stderr = "";
+    child.stderr.on("data", (chunk: Buffer) => (stderr += chunk));
+    const [status] = await once(child, "close");
+    expect(status).not.toBe(0);
+    expect(stderr).toContain("No interactive terminal");
     expect(f.calls()).toHaveLength(0);
     expect(readdirSync(f.home)).toHaveLength(0);
   });
 
   test("piped POSIX entrypoint does not consume its script as prompt input", () => {
     const f = fixture();
-    const result = Bun.spawnSync(
+    const result = spawnSync(
+      "/bin/sh",
       [
-        "/bin/sh",
         "-c",
         'cat "$INSTALLER" | /bin/sh -s -- --source "$SOURCE" --project --agents claude --yes --no-apply',
       ],
       {
         cwd: f.project,
         env: { ...f.env, INSTALLER: installer, SOURCE: f.source },
-        stdin: "ignore",
-        stdout: "pipe",
-        stderr: "pipe",
+        stdio: ["ignore", "pipe", "pipe"],
+        encoding: "utf8",
         timeout: 10_000,
       },
     );
-    expect(result.exitCode).toBe(0);
+    expect(result.status).toBe(0);
     expect(existsSync(join(f.project, ".agentsync/skills/testing/SKILL.md"))).toBe(true);
   });
 
@@ -207,17 +212,14 @@ describe("installer dependencies and process boundaries", () => {
       put(join(payload, "agentsync"), agentSyncMock);
       if (scenario === "linked-archive") symlinkSync("/does-not-exist", join(payload, "linked"));
       const asset = "agentsync_1.2.3_linux_amd64.tar.gz";
-      const tar = Bun.spawnSync(
-        ["/usr/bin/tar", "-czf", join(downloads, asset), "-C", payload, "."],
-        {
-          env: { PATH: "/usr/bin:/bin", COPYFILE_DISABLE: "1" },
-        },
-      );
-      expect(tar.exitCode).toBe(0);
+      const tar = spawnSync("/usr/bin/tar", ["-czf", join(downloads, asset), "-C", payload, "."], {
+        env: { PATH: "/usr/bin:/bin", COPYFILE_DISABLE: "1" },
+      });
+      expect(tar.status).toBe(0);
       const checksum =
         scenario === "bad-checksum"
           ? "0".repeat(64)
-          : new Bun.CryptoHasher("sha256")
+          : createHash("sha256")
               .update(readFileSync(join(downloads, asset)))
               .digest("hex");
       put(
@@ -306,7 +308,7 @@ chmod 755 "$MOCK_BIN/agentsync"
         );
         chmodSync(join(f.bin, "sudo"), 0o755);
         const packageBytes = "verified fake package\n";
-        const hash = new Bun.CryptoHasher("sha256").update(packageBytes).digest("hex");
+        const hash = createHash("sha256").update(packageBytes).digest("hex");
         put(
           join(f.bin, "curl"),
           `#!${bun}
@@ -570,15 +572,14 @@ describe("guided POSIX installer", () => {
   test("pack download failure does not scaffold canonical config", () => {
     const f = fixture();
     // Invoke without --source, keeping the same hermetic PATH.
-    const result = Bun.spawnSync(["/bin/sh", installer, "--yes", "--agents", "claude"], {
+    const result = spawnSync("/bin/sh", [installer, "--yes", "--agents", "claude"], {
       cwd: f.project,
       env: f.env,
-      stdin: "ignore",
-      stdout: "pipe",
-      stderr: "pipe",
+      stdio: ["ignore", "pipe", "pipe"],
+      encoding: "utf8",
     });
-    expect(result.exitCode).not.toBe(0);
-    expect(result.stderr.toString()).toContain("Download failed");
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("Download failed");
     expect(existsSync(join(f.home, ".agentsync"))).toBe(false);
     expect(f.calls()).toHaveLength(0);
   });
