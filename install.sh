@@ -588,9 +588,11 @@ log "AgentSync check passed."
 if [ "$APPLY" != 0 ]; then
   run_as apply --dry-run
   # AgentSync owns the destination map. Its preview lists absolute operation
-  # paths; check their ancestors too (a leaf-only symlink check is insufficient
-  # for a linked ~/.claude/ directory). Never duplicate the adapter registry.
-  awk '$2=="write" || $2=="synced" || $2=="delete" || $2=="remove" {
+  # paths; check the ancestors of every path it will change (a leaf-only
+  # symlink check is insufficient for a linked ~/.claude/ directory). Paths
+  # already "synced" are not touched, so a user's own linked skill folder is
+  # left alone. Never duplicate the adapter registry.
+  awk '$2=="write" || $2=="delete" || $2=="remove" {
     operation=$2
     sub(/^[[:space:]]*[^[:space:]]+[[:space:]]+[^[:space:]]+[[:space:]]+/, "")
     print operation "\t" $0
@@ -598,7 +600,7 @@ if [ "$APPLY" != 0 ]; then
   log "Native file changes (configuration values are not displayed):"
   while IFS="$(printf '\t')" read -r operation native_path; do
     absolute "$native_path" >/dev/null
-    [ "$operation" = synced ] || log "  $operation: $native_path"
+    log "  $operation: $native_path"
   done <"$WORK/destinations"
   # Emit the summary and validated paths, never raw configuration diagnostics.
   awk '/^Plan: [0-9]+ ops total across [0-9]+ agent/ { print }' "$WORK/agentsync.log"

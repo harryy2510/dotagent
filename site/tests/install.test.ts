@@ -69,6 +69,7 @@ if (args[0] === "agent") {
   if (args.includes("--dry-run")) {
     console.log("Plan: 3 ops total across 1 agent(s) — 3 to write, 0 already synced");
     console.log("    → write  " + join(root || process.env.HOME, ".claude", "CLAUDE.md"));
+    console.log("    ✓ synced " + join(root || process.env.HOME, ".claude", "skills", "linked", "SKILL.md"));
   }
   else writeFileSync(join(root || process.env.HOME, "native-applied"), "applied");
 } else throw Error("unexpected CLI command: " + args.join(" "));
@@ -619,6 +620,18 @@ describe("guided POSIX installer", () => {
     expect(result.output).toContain("symlink");
     expect(existsSync(join(f.project, "native-applied"))).toBe(false);
     expect(readdirSync(outside)).toHaveLength(0);
+  });
+
+  test("already-synced paths inside a user's linked skill folder do not block apply", () => {
+    const f = fixture();
+    const outside = join(f.root, "own-skill");
+    mkdirSync(outside);
+    mkdirSync(join(f.project, ".claude/skills"), { recursive: true });
+    symlinkSync(outside, join(f.project, ".claude/skills/linked"));
+    const result = f.run(["--project", "--yes", "--agents", "claude"]);
+    expect(result.status).toBe(0);
+    expect(result.output).not.toContain("linked/SKILL.md");
+    expect(existsSync(join(f.project, "native-applied"))).toBe(true);
   });
 
   test("failed replacement restores the backed-up owned path", () => {
